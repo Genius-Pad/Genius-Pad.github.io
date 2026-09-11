@@ -1125,12 +1125,15 @@
   guideDotsEl.innerHTML = guideStepEls.map(function () { return "<i></i>"; }).join("");
   var guideDotEls = Array.prototype.slice.call(guideDotsEl.children);
   var guideStep = 0;
+  function guideOnLastStep() { return guideStep === guideStepEls.length - 1; }
   function renderGuideStep() {
     guideStepEls.forEach(function (el, i) { el.classList.toggle("on", i === guideStep); });
     guideDotEls.forEach(function (el, i) { el.classList.toggle("on", i === guideStep); });
     $("guidePrev").style.visibility = guideStep === 0 ? "hidden" : "visible";
-    var last = guideStep === guideStepEls.length - 1;
+    var last = guideOnLastStep();
     $("guideNext").hidden = last; $("guideDone").hidden = !last;
+    // закрыть можно только дочитав до конца — не крестиком/кликом мимо на середине
+    $("guideClose").hidden = !last;
   }
   function openGuide(fromStart) {
     if (fromStart) guideStep = 0;
@@ -1138,7 +1141,8 @@
     openModal(guideBackdrop);
     lsSet("gpad.guideSeen", "1");
   }
-  wireModalClose(guideBackdrop, "guideClose");
+  $("guideClose").onclick = function () { closeModal(guideBackdrop); };
+  guideBackdrop.addEventListener("click", function (e) { if (e.target === guideBackdrop && guideOnLastStep()) closeModal(guideBackdrop); });
   $("guideBtn").onclick = function () { openGuide(true); };
   $("guideNext").onclick = function () { if (guideStep < guideStepEls.length - 1) { guideStep++; renderGuideStep(); } };
   $("guidePrev").onclick = function () { if (guideStep > 0) { guideStep--; renderGuideStep(); } };
