@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-11T21:42:46.016Z",
+  "updatedAt": "2026-09-11T22:18:48.067Z",
   "kits": [
     {
       "id": "demo-drums-158f88",
@@ -30,6 +30,16 @@
       "sizeBytes": 10251248,
       "sha256": "c2fcbaa65f8a380ec3d682c77d821adf83e5402928cecdaf44ecdbd1e90c4843",
       "addedAt": "2026-09-11T21:42:41.783Z"
+    },
+    {
+      "id": "araab-vol-2-2b3f8a",
+      "name": "Araab Vol 2",
+      "author": "KOLYASIK",
+      "bpm": 90,
+      "file": "kits/araab-vol-2-2b3f8a.gp",
+      "sizeBytes": 12777836,
+      "sha256": "2b3f8a2eac4933467e7c50b82d26ec991524d8ff797a749bd81e11a13b9e10ed",
+      "addedAt": "2026-09-11T22:18:43.574Z"
     }
   ],
   "version": 1
