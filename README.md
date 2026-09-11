@@ -1,11 +1,11 @@
 # Genius·Pad — Kit Catalog & Builder
 
-A no-backend kit catalog for [Genius·Pad](https://github.com/podvalgames) sample
-kits, plus the browser tool used to build and publish them. Everything here
-is static — GitHub Pages serves the files, and publishing new kits goes
-through a normal Pull Request.
+A no-backend kit catalog for Genius·Pad sample kits, plus the browser tool
+used to build and publish them. Everything here is static — GitHub Pages
+serves the files, and publishing new kits goes through a normal Pull
+Request.
 
-**Live site:** https://podvalgames.github.io/genius-pad-kits/
+**Live site:** https://genius-pad.github.io/
 
 ## What's in this repo
 
@@ -24,7 +24,7 @@ publish them.
 
 ## Browsing / downloading kits
 
-Open the [live site](https://podvalgames.github.io/genius-pad-kits/) and
+Open the [live site](https://genius-pad.github.io/) and
 click **Catalog**. Each entry has:
 
 - **Download** — grabs the `.gp` file.
@@ -36,7 +36,7 @@ if it doesn't match, you get a warning instead of a silently broken kit.
 
 ## Publishing a kit
 
-1. Build your kit in the [builder](https://podvalgames.github.io/genius-pad-kits/)
+1. Build your kit in the [builder](https://genius-pad.github.io/)
    and click **Publish**. It shows you the `.gp` file to download and a
    ready-made JSON entry for `catalog.json` (with a **Copy** button).
 2. On GitHub, open this repo's **Add file → Upload files** page for the
