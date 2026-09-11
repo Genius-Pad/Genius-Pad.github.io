@@ -1,9 +1,10 @@
 # Genius·Pad — Kit Catalog & Builder
 
-A no-backend kit catalog for Genius·Pad sample kits, plus the browser tool
-used to build and publish them. Everything here is static — GitHub Pages
-serves the files, and publishing new kits goes through a normal Pull
-Request.
+A kit catalog for Genius·Pad sample kits, plus the browser tool used to
+build and publish them. The site itself is static (GitHub Pages) — the
+only backend is a small Cloudflare Worker whose one job is accepting kit
+submissions from people who don't have (and shouldn't need) a GitHub
+account.
 
 **Live site:** https://genius-pad.github.io/
 
@@ -19,6 +20,8 @@ Request.
 - `kits/*.gp` — the actual kit archives listed in `catalog.json`.
 - `scripts/validate-catalog.cjs` + `.github/workflows/validate-catalog.yml`
   — the automated check every Pull Request gets, see below.
+- `admin.html` — token-gated review queue for the catalog owner: see
+  what's been submitted, download/preview it, Approve or Reject.
 - New here? Click **Guide** in the builder's header for a short 4-step
   walkthrough (what a kit is, how the 4 banks/16 pads are meant to be used,
   how to build/publish, how to browse/download).
@@ -41,17 +44,38 @@ if it doesn't match, you get a warning instead of a silently broken kit.
 
 ## Publishing a kit
 
-See **[CONTRIBUTING.md](CONTRIBUTING.md)** for the full walkthrough (also
-built into the site itself — click **Guide** in the builder's header). The
-short version: build it, **Publish**, upload the `.gp` to `kits/`, paste the
-JSON entry into `catalog.json`, open a Pull Request.
+Build it in the [builder](https://genius-pad.github.io/), click **Publish**.
+Two ways from there:
 
-Every such PR is checked automatically (`scripts/validate-catalog.cjs`, run
-by `.github/workflows/validate-catalog.yml`): the file's sha256 must match
-its catalog entry, it must pass the same structural check the builder uses
-on import, and it must be **under 20 MB**. A green check doesn't merge
-anything by itself — the repo owner still reviews and merges. Nothing here
-is published automatically.
+- **Submit for review** — the normal way. No GitHub account. Type a name,
+  optionally a note, hit submit. It's sent to a small backend
+  (`gpad-submit-worker`, see below) that queues it for the catalog owner to
+  approve. You keep using your own copy locally in the meantime — nothing
+  about submitting takes the file away from you.
+- **Advanced: publish via GitHub yourself** — collapsed under that heading
+  in the same dialog. For people who do have a GitHub account and would
+  rather commit it themselves: download the `.gp`, upload it to `kits/`,
+  paste the JSON entry into `catalog.json`, open a Pull Request. See
+  **[CONTRIBUTING.md](CONTRIBUTING.md)** for the full walkthrough.
+
+Either way, nothing reaches the live catalog without a human — the catalog
+owner — approving it. A submission through the Worker becomes an ordinary
+commit only once approved in `admin.html`; a Pull Request only merges once
+reviewed. Every PR also gets an automated check first
+(`scripts/validate-catalog.cjs`, run by `.github/workflows/validate-catalog.yml`):
+sha256 must match, the file must pass the same structural check the builder
+uses on import, and it must be **under 20 MB**. A green check doesn't merge
+anything by itself.
+
+## gpad-submit-worker
+
+`tools/gpad-submit-worker/` isn't in this repo — it's a separate Cloudflare
+Worker deployed from the main development repo (kept there so its source
+lives next to the `gpad-core.js` it depends on). It's what makes "Submit
+for review" possible without a GitHub account: it validates the kit,
+holds it in a review queue, and — only once the owner clicks Approve in
+`admin.html` — commits it to this repo using its own bot credentials
+(never exposed to the browser or stored here).
 
 ## Format
 

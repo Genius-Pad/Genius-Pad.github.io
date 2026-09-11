@@ -382,26 +382,41 @@
       <h2>Publish</h2>
       <button class="ghost small" id="publishClose">Close</button>
     </div>
-    <ol class="steps">
-      <li>Download the <span class="mono">.gp</span> below.</li>
-      <li>Open your catalog repo's upload page and drop the file into <span class="mono">kits/</span>.</li>
-      <li>Copy the entry and add it to <span class="mono">catalog.json</span> in the same commit/PR.</li>
-      <li>Open a Pull Request — the catalog owner reviews and merges.</li>
-    </ol>
+
+    <p class="hint">Send your kit to the catalog owner for review — no GitHub account, nothing to fill in but a name.</p>
     <div class="ed-row">
       <button class="primary small" id="publishDownload">Download .gp</button>
       <span class="hint" id="publishMeta"></span>
     </div>
     <div class="ed-row">
-      <input class="lbl" id="publishRepo" placeholder="https://github.com/<owner>/<repo>">
-      <input class="lbl" id="publishBranch" placeholder="main" style="flex: 0 1 90px;">
-      <button class="small" id="publishOpenUpload">Open upload page</button>
+      <input class="lbl" id="submitNote" placeholder="anything the reviewer should know? (optional)" maxlength="300">
     </div>
     <div class="ed-row">
-      <textarea class="snippet mono" id="publishSnippet" readonly rows="8"></textarea>
+      <button class="primary small" id="submitBtn">Submit for review</button>
     </div>
-    <div class="ed-row">
-      <button class="small" id="publishCopy">Copy entry JSON</button>
+    <div class="hint" id="submitResult"></div>
+
+    <div class="ed-row" style="margin-top: 2px;">
+      <button class="ghost small" id="advancedToggle">Advanced: publish via GitHub yourself ▾</button>
+    </div>
+    <div id="publishAdvancedPane" hidden>
+      <ol class="steps">
+        <li>Download the <span class="mono">.gp</span> above.</li>
+        <li>Open your catalog repo's upload page and drop the file into <span class="mono">kits/</span>.</li>
+        <li>Copy the entry and add it to <span class="mono">catalog.json</span> in the same commit/PR.</li>
+        <li>Open a Pull Request — the catalog owner reviews and merges.</li>
+      </ol>
+      <div class="ed-row">
+        <input class="lbl" id="publishRepo" placeholder="https://github.com/<owner>/<repo>">
+        <input class="lbl" id="publishBranch" placeholder="main" style="flex: 0 1 90px;">
+        <button class="small" id="publishOpenUpload">Open upload page</button>
+      </div>
+      <div class="ed-row">
+        <textarea class="snippet mono" id="publishSnippet" readonly rows="8"></textarea>
+      </div>
+      <div class="ed-row">
+        <button class="small" id="publishCopy">Copy entry JSON</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1038,23 +1053,34 @@
     }).then(onOk).catch(function (err) { toast(err.message || "download failed", true); });
   }
 
-  // ---- publish: готовим .gp + запись каталога, ничего не публикуем сами ----
+  // ---- publish: Submit for review (без гитхаба, через маленький бэкенд) + ручной путь через PR ----
+  // Бэкенд свой, под этот же каталог; для чужого форка можно переопределить в консоли:
+  // localStorage.setItem('gpad.submitUrl', 'https://<свой-воркер>.workers.dev')
+  var SUBMIT_URL = lsGet("gpad.submitUrl", "https://gpad-submit.podval-games.workers.dev");
+
   var publishBackdrop = $("publishBackdrop"), publishRepoInput = $("publishRepo"), publishBranchInput = $("publishBranch");
   publishRepoInput.value = lsGet("gpad.repoUrl", "");
   publishBranchInput.value = lsGet("gpad.repoBranch", "main");
   publishRepoInput.addEventListener("change", function () { lsSet("gpad.repoUrl", this.value.trim()); });
   publishBranchInput.addEventListener("change", function () { lsSet("gpad.repoBranch", this.value.trim() || "main"); });
   wireModalClose(publishBackdrop, "publishClose");
+  $("advancedToggle").onclick = function () {
+    var pane = $("publishAdvancedPane"); pane.hidden = !pane.hidden;
+    this.textContent = "Advanced: publish via GitHub yourself " + (pane.hidden ? "▾" : "▴");
+  };
 
-  var publishBytes = null;
+  var publishBytes = null, publishEntry = null;
   $("publishBtn").onclick = function () {
     var a = assembleCurrent();
-    publishBytes = a.bytes;
+    publishBytes = a.bytes; publishEntry = null;
     $("publishMeta").textContent = "computing checksum…";
     $("publishSnippet").value = "";
+    $("submitResult").textContent = ""; $("submitResult").className = "hint";
+    $("submitBtn").disabled = false; $("submitBtn").textContent = "Submit for review";
     openModal(publishBackdrop);
     C.sha256Hex(a.bytes).then(function (hex) {
       var entry = C.buildCatalogEntry({ name: state.name, author: state.author, bpm: state.bpm }, a.bytes, hex);
+      publishEntry = entry;
       var mb = (a.bytes.length / 1024 / 1024).toFixed(2);
       var over = a.bytes.length > C.MAX_KIT_BYTES;
       var meta = $("publishMeta");
@@ -1063,6 +1089,31 @@
       meta.className = "hint" + (over ? " publish-warn" : "");
       $("publishSnippet").value = JSON.stringify(entry, null, 2) + ",";
       $("publishDownload").onclick = function () { downloadBytes(publishBytes, entry.id + C.GPAD_EXT); };
+    });
+  };
+  $("submitBtn").onclick = function () {
+    if (!publishBytes || !publishEntry) return;
+    var btn = this, resultEl = $("submitResult");
+    btn.disabled = true; btn.textContent = "Sending…";
+    resultEl.className = "hint"; resultEl.textContent = "";
+    var fd = new FormData();
+    fd.append("file", new Blob([publishBytes], { type: "application/octet-stream" }), publishEntry.id + C.GPAD_EXT);
+    fd.append("name", state.name); fd.append("author", state.author); fd.append("bpm", String(state.bpm));
+    fd.append("note", $("submitNote").value.trim());
+    fetch(SUBMIT_URL + "/submit", { method: "POST", body: fd }).then(function (res) {
+      return res.json().then(function (data) { return { ok: res.ok, data: data }; });
+    }).then(function (r) {
+      if (!r.ok || !r.data.ok) throw new Error((r.data && r.data.error) || "submit failed");
+      btn.textContent = "Submitted ✓";
+      resultEl.className = "hint";
+      resultEl.textContent = "Sent — the catalog owner will review it. While you wait, you can keep using this kit "
+        + "right now: it's still on your device as the .gp file above (Download it, or just keep building in "
+        + "this tab) — it'll show up in the shared Catalog once approved.";
+      toast("submitted for review");
+    }).catch(function (err) {
+      btn.disabled = false; btn.textContent = "Submit for review";
+      resultEl.className = "hint publish-warn";
+      resultEl.textContent = "Couldn't submit: " + err.message + " — you can still use \"Download .gp\" above and publish it yourself (see Advanced below).";
     });
   };
   $("publishCopy").onclick = function () {

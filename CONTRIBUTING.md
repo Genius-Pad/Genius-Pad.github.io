@@ -1,14 +1,25 @@
 # Publishing a kit
 
-No account beyond GitHub, no CLI, no build step. Everything happens through
-GitHub's own web UI plus one automated check.
+Two ways to do this. Most people want the first one.
 
-## 1. Build it
+## The easy way: Submit for review
 
-Open the [builder](https://genius-pad.github.io/) (or `index.html` locally),
-drop sounds onto the pad grid, trim/name them, click **Publish**.
+No account, no CLI, nothing to fill in but a name. Open the
+[builder](https://genius-pad.github.io/), drop sounds onto the pad grid,
+trim/name them, click **Publish**, then **Submit for review**. That's it —
+your kit goes into a queue the catalog owner reviews (see "What happens
+after you submit" below). You keep using your own `.gp` locally the whole
+time; submitting doesn't take it away from you or require anything else.
 
-The Publish dialog:
+## The GitHub way: open a Pull Request yourself
+
+For people who already have a GitHub account and would rather commit it
+themselves instead of waiting on a review queue. In the Publish dialog,
+open **Advanced: publish via GitHub yourself**.
+
+### 1. Build it
+
+The advanced panel:
 - computes the kit's **sha256** and shows its size,
 - warns right there if the kit is over the **20 MB** catalog limit (trim
   samples or drop a pad if you see that warning — a PR over the limit will
@@ -16,7 +27,7 @@ The Publish dialog:
 - gives you a **Download .gp** button,
 - gives you a ready-made **catalog.json entry** (JSON, with a Copy button).
 
-## 2. Upload the file
+### 2. Upload the file
 
 On this repo, go to **Add file → Upload files**, open the `kits/` folder,
 and drop your `.gp` in. (The Publish dialog's "Open upload page" button does
@@ -25,18 +36,28 @@ this for you once you've set the repo/branch fields.)
 If you don't have write access to this repo, GitHub automatically forks it
 and opens this as a Pull Request for you — that's expected, not an error.
 
-## 3. Add the catalog entry
+### 3. Add the catalog entry
 
 In the same commit/PR, open `catalog.json` in GitHub's web editor and paste
 the entry the Publish dialog gave you into the `kits` array (keep the
 trailing comma rules valid — it's just JSON).
 
-## 4. Open the Pull Request
+### 4. Open the Pull Request
 
 If GitHub didn't already turn your upload into one, open a Pull Request
 against `master`.
 
-## What happens automatically
+## What happens after you submit (the easy way)
+
+Submissions go to `gpad-submit-worker`, a small Cloudflare Worker with its
+own review queue (`admin.html`) — not straight into the catalog. It checks
+the kit's structure and size the moment you submit (same rules as below),
+holds it, and only becomes a real commit to this repo once the catalog
+owner clicks **Approve**. There's no notification when that happens (no
+account to notify) — check back on the site, your kit will just be in the
+Catalog once it's in.
+
+## What happens automatically (the GitHub way)
 
 A GitHub Actions check (`validate-catalog.yml`) runs on every PR that
 touches `catalog.json` or `kits/**`. It:

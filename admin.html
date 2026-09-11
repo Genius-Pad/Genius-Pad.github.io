@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Genius·Pad Catalog — Admin</title>
+<style>
+  :root {
+    --bg: #0a0a0b; --panel-hi: #26262d; --panel-lo: #17171b;
+    --hair: #35353d; --hair-soft: #2a2a30; --edge: rgba(255,255,255,.08);
+    --ink: #eceef0; --dim: #9a9aa3; --faint: #5c5c66;
+    --accent: #f0822f; --accent-lo: #c05f1c; --accent-ink: #1c0d02;
+    --lcd: #86dbe6; --lcd-dim: #427077; --bad: #e6604a; --good: #6fcf7a;
+    --r-lg: 10px; --r-md: 7px; --r-sm: 5px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100dvh; background: var(--bg); color: var(--ink);
+    font: 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    padding: clamp(12px, 3vmin, 28px);
+  }
+  .mono { font-family: ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", Menlo, Consolas, monospace; }
+  .wrap { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+  h1 { font-size: clamp(20px, 3vmin, 26px); letter-spacing: .12em; color: var(--lcd); margin: 0; }
+  .molded {
+    background: linear-gradient(180deg, var(--panel-hi), var(--panel-lo));
+    border: 1px solid var(--hair); border-radius: var(--r-lg);
+    box-shadow: inset 0 1px 0 var(--edge), inset 0 -1px 0 rgba(0,0,0,.5), 0 1px 3px rgba(0,0,0,.45);
+    padding: 14px;
+  }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  input {
+    height: 34px; padding: 0 11px; border-radius: var(--r-sm); border: 1px solid var(--hair);
+    background: #101014; color: var(--ink); font: inherit; min-width: 0; flex: 1;
+  }
+  button {
+    height: 34px; padding: 0 14px; border-radius: var(--r-md); border: 1px solid var(--hair);
+    background: linear-gradient(180deg, #2d2d34, #1c1c21); color: var(--ink); font: inherit;
+    font-weight: 600; cursor: pointer; touch-action: manipulation;
+  }
+  button.primary { background: linear-gradient(180deg, #f5904a, var(--accent-lo)); border-color: #8a4a1e; color: var(--accent-ink); }
+  button.bad { background: linear-gradient(180deg, #d9614a, #8a3324); border-color: #6b2418; color: #fff3ef; }
+  button:disabled { opacity: .45; cursor: default; }
+  .hint { color: var(--faint); font-size: 12px; }
+  .list { display: flex; flex-direction: column; gap: 10px; }
+  .item { background: #17171b; border: 1px solid var(--hair-soft); border-radius: var(--r-md); padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .item .name { font-weight: 700; font-size: 15px; }
+  .item .sub { color: var(--faint); font-size: 12px; }
+  .item .note { color: var(--dim); font-size: 13px; background: #101014; border-radius: var(--r-sm); padding: 8px 10px; }
+  .empty { color: var(--faint); text-align: center; padding: 30px 0; }
+  a.dl { display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>GENIUS·PAD <span style="color:var(--lcd-dim)">CATALOG ADMIN</span></h1>
+  <p class="hint">Not linked from the site, not indexed — but not a secret either: everything here is gated
+    server-side by the admin token, this page is just the UI for it.</p>
+
+  <div class="molded row">
+    <input id="workerUrl" placeholder="worker URL">
+    <input id="token" type="password" placeholder="admin token">
+    <button class="primary" id="refreshBtn">Refresh</button>
+  </div>
+
+  <div id="status" class="hint"></div>
+  <div id="list" class="list"></div>
+</div>
+<a id="dl" class="dl"></a>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var workerInput = $("workerUrl"), tokenInput = $("token"), statusEl = $("status"), listEl = $("list"), dl = $("dl");
+
+  function lsGet(k, d) { try { var v = localStorage.getItem(k); return v == null ? d : v; } catch (_) { return d; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (_) {} }
+
+  workerInput.value = lsGet("gpad.workerUrl", "https://gpad-submit.podval-games.workers.dev");
+  tokenInput.value = lsGet("gpad.adminToken", "");
+  workerInput.addEventListener("change", function () { lsSet("gpad.workerUrl", this.value.trim().replace(/\/+$/, "")); });
+  tokenInput.addEventListener("change", function () { lsSet("gpad.adminToken", this.value.trim()); });
+
+  function authedFetch(path, opts) {
+    var url = workerInput.value.trim().replace(/\/+$/, "") + path;
+    opts = opts || {};
+    opts.headers = Object.assign({ Authorization: "Bearer " + tokenInput.value.trim() }, opts.headers || {});
+    return fetch(url, opts);
+  }
+
+  function fmtSize(n) { return n < 1024 * 1024 ? Math.round(n / 1024) + " KB" : (n / 1024 / 1024).toFixed(1) + " MB"; }
+
+  function refresh() {
+    statusEl.textContent = "loading…"; listEl.innerHTML = "";
+    authedFetch("/admin/pending").then(function (res) {
+      if (res.status === 401) throw new Error("wrong token");
+      return res.json();
+    }).then(function (data) {
+      if (!data.ok) throw new Error(data.error || "failed");
+      statusEl.textContent = data.items.length + " pending";
+      render(data.items);
+    }).catch(function (err) {
+      statusEl.textContent = "error: " + err.message;
+    });
+  }
+
+  function render(items) {
+    listEl.innerHTML = "";
+    if (!items.length) { listEl.innerHTML = '<div class="empty">nothing waiting on review</div>'; return; }
+    items.sort(function (a, b) { return (b.submittedAt || "").localeCompare(a.submittedAt || ""); });
+    items.forEach(function (it) {
+      var row = document.createElement("div");
+      row.className = "item";
+      row.innerHTML =
+        '<div class="name">' + escapeHtml(it.name || it.id) + '</div>' +
+        '<div class="sub">' + escapeHtml(it.author || "(no author)") + " · " + it.bpm + " BPM · " + fmtSize(it.sizeBytes) +
+          " · " + escapeHtml((it.submittedAt || "").replace("T", " ").replace(/\..+/, "Z")) + '</div>' +
+        (it.note ? '<div class="note">' + escapeHtml(it.note) + "</div>" : "") +
+        '<div class="row">' +
+          '<button data-act="dl">Download</button>' +
+          '<button class="primary" data-act="approve">Approve → publish</button>' +
+          '<button class="bad" data-act="reject">Reject</button>' +
+          '<span class="hint" data-act="msg"></span>' +
+        "</div>";
+      row.querySelector('[data-act="dl"]').onclick = function () {
+        authedFetch("/admin/pending/" + it.id + "/file").then(function (r) { return r.arrayBuffer(); }).then(function (ab) {
+          var url = URL.createObjectURL(new Blob([ab]));
+          dl.href = url; dl.download = it.id + ".gp"; dl.click();
+          setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+        });
+      };
+      row.querySelector('[data-act="approve"]').onclick = function () { act(it.id, "approve", row); };
+      row.querySelector('[data-act="reject"]').onclick = function () { act(it.id, "reject", row); };
+      listEl.appendChild(row);
+    });
+  }
+
+  function act(id, verb, row) {
+    var msg = row.querySelector('[data-act="msg"]');
+    row.querySelectorAll("button").forEach(function (b) { b.disabled = true; });
+    msg.textContent = verb === "approve" ? "publishing…" : "rejecting…";
+    authedFetch("/admin/" + verb + "/" + id, { method: "POST" }).then(function (res) { return res.json(); }).then(function (data) {
+      if (!data.ok) throw new Error(data.error || "failed");
+      row.style.opacity = ".5";
+      msg.textContent = verb === "approve" ? "published ✓" : "rejected";
+      setTimeout(refresh, 900);
+    }).catch(function (err) {
+      row.querySelectorAll("button").forEach(function (b) { b.disabled = false; });
+      msg.textContent = "error: " + err.message;
+    });
+  }
+
+  function escapeHtml(s) { return String(s).replace(/[&<>"]/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]; }); }
+
+  $("refreshBtn").onclick = refresh;
+  if (tokenInput.value) refresh();
+})();
+</script>
+</body>
+</html>
