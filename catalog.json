@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-11T21:38:01.126Z",
+  "updatedAt": "2026-09-11T21:38:54.162Z",
   "kits": [
     {
       "id": "demo-drums-158f88",
@@ -20,16 +20,6 @@
       "sizeBytes": 153525,
       "bpm": 100,
       "sha256": "db69ca9d5c4b02b59bcfd111dcb02d60eec8f7cafb7da1c445b1c8fd42642109"
-    },
-    {
-      "id": "araab-vol-1-0ae326",
-      "name": "Araab Vol 1",
-      "author": "araabMUZIK Drum Kit Collection (unlicensed rip -- local test",
-      "bpm": 90,
-      "file": "kits/araab-vol-1-0ae326.gp",
-      "sizeBytes": 10251308,
-      "sha256": "0ae326f23d2da6214220f0115667bd94cbaf920e55faf72cbbffbed4480805e2",
-      "addedAt": "2026-09-11T21:37:55.544Z"
     }
   ],
   "version": 1
