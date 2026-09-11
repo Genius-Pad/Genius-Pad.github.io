@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-11T20:23:34.312Z",
+  "updatedAt": "2026-09-11T20:23:36.972Z",
   "kits": [
     {
       "id": "demo-drums-158f88",
@@ -50,6 +50,16 @@
       "sizeBytes": 34501,
       "sha256": "ae726de1a57a3c7845d11f1fe682dbded54f3abddfc0ef3fc30d146590a33c38",
       "addedAt": "2026-09-11T20:23:32.841Z"
+    },
+    {
+      "id": "rate-limit-test-4-ae726d",
+      "name": "Rate Limit Test 4",
+      "author": "ci-rl",
+      "bpm": 100,
+      "file": "kits/rate-limit-test-4-ae726d.gp",
+      "sizeBytes": 34501,
+      "sha256": "ae726de1a57a3c7845d11f1fe682dbded54f3abddfc0ef3fc30d146590a33c38",
+      "addedAt": "2026-09-11T20:23:35.520Z"
     }
   ],
   "version": 1
