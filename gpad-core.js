@@ -229,6 +229,11 @@ var GpadCore = (function () {
   var BANK_IDS = ['A', 'B', 'C', 'D'];
   var SILENT_SAMPLE = '_.wav';
   var GPAD_EXT = '.gp';
+  // Мягкий потолок размера кита для каталога — с запасом под 25 МБ, которые
+  // даёт веб-форма загрузки GitHub (см. buildCatalogEntry/Publish и
+  // scripts/validate-catalog.mjs в репозитории каталога — оба читают именно
+  // эту константу, а не хранят своё число).
+  var MAX_KIT_BYTES = 20 * 1024 * 1024;
 
   /** Имя файла → безопасный кусок пути. Пусто → "pad". */
   function sanitizeLabel(s) {
@@ -447,6 +452,7 @@ var GpadCore = (function () {
     BANK_IDS: BANK_IDS,
     SILENT_SAMPLE: SILENT_SAMPLE,
     GPAD_EXT: GPAD_EXT,
+    MAX_KIT_BYTES: MAX_KIT_BYTES,
   };
 })();
 

@@ -17,6 +17,11 @@ Request.
   sha256, file path). The builder's **Catalog** panel reads this to show
   what's available; **Publish** helps prepare a new entry for it.
 - `kits/*.gp` — the actual kit archives listed in `catalog.json`.
+- `scripts/validate-catalog.cjs` + `.github/workflows/validate-catalog.yml`
+  — the automated check every Pull Request gets, see below.
+- New here? Click **Guide** in the builder's header for a short 4-step
+  walkthrough (what a kit is, how the 4 banks/16 pads are meant to be used,
+  how to build/publish, how to browse/download).
 
 Right now the catalog holds two small demo kits (synthesized tones/noise,
 just to prove the plumbing works end to end) — real kits go in as people
@@ -36,19 +41,17 @@ if it doesn't match, you get a warning instead of a silently broken kit.
 
 ## Publishing a kit
 
-1. Build your kit in the [builder](https://genius-pad.github.io/)
-   and click **Publish**. It shows you the `.gp` file to download and a
-   ready-made JSON entry for `catalog.json` (with a **Copy** button).
-2. On GitHub, open this repo's **Add file → Upload files** page for the
-   `kits/` folder and drop your `.gp` there (the Publish dialog has an
-   "Open upload page" shortcut for this once you've set the repo URL).
-3. Edit `catalog.json` in the same commit/PR and paste in the entry.
-4. Open a Pull Request. If you don't have write access, GitHub does this
-   for you automatically once you commit through the web UI.
+See **[CONTRIBUTING.md](CONTRIBUTING.md)** for the full walkthrough (also
+built into the site itself — click **Guide** in the builder's header). The
+short version: build it, **Publish**, upload the `.gp` to `kits/`, paste the
+JSON entry into `catalog.json`, open a Pull Request.
 
-The repo owner reviews the PR (kit size, whether the sound is what the name
-says) and merges. Nothing is published automatically — every kit here has
-gone through a human review first.
+Every such PR is checked automatically (`scripts/validate-catalog.cjs`, run
+by `.github/workflows/validate-catalog.yml`): the file's sha256 must match
+its catalog entry, it must pass the same structural check the builder uses
+on import, and it must be **under 20 MB**. A green check doesn't merge
+anything by itself — the repo owner still reviews and merges. Nothing here
+is published automatically.
 
 ## Format
 

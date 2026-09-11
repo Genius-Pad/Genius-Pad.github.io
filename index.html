@@ -61,12 +61,29 @@
   .hrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; row-gap: 6px; min-width: 0; }
   .hrow .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-left: auto; }
   .hrow + .hrow { padding-top: 8px; border-top: 1px solid rgba(134,219,230,.10); }
-  .brand {
-    font-weight: 700; letter-spacing: .12em; color: var(--lcd);
-    text-shadow: 0 0 10px rgba(134,219,230,.4); white-space: nowrap;
-    font-size: clamp(12px, 1.6vmin, 15px);
+  /* логотип: значок-«пэд» + жирный wordmark + отдельный бейдж BUILDER —
+     раньше это была одна мелкая строчка капсом, читалась как дешёвая заглушка */
+  .brand { display: flex; align-items: center; gap: 10px; white-space: nowrap; min-width: 0; }
+  .brand-mark {
+    flex: none; width: 22px; height: 22px; padding: 3px; border-radius: 6px;
+    display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 2px;
+    background: linear-gradient(180deg, #123338, #071113); border: 1px solid #24393d;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
   }
-  .brand small { color: var(--lcd-dim); margin-left: .6em; letter-spacing: .2em; font-weight: 600; }
+  .brand-mark i { border-radius: 2px; background: var(--accent); box-shadow: 0 0 5px rgba(240,130,47,.6); }
+  .brand-mark i:nth-child(2), .brand-mark i:nth-child(3) { background: var(--lcd); box-shadow: 0 0 5px rgba(134,219,230,.55); }
+  .brand-word {
+    font-weight: 800; letter-spacing: .03em; color: var(--lcd);
+    text-shadow: 0 0 12px rgba(134,219,230,.4);
+    font-size: clamp(18px, 2.6vmin, 24px); line-height: 1;
+  }
+  .brand-word b { color: var(--accent); font-weight: 800; }
+  .brand-tag {
+    flex: none; font-size: 10px; font-weight: 700; letter-spacing: .16em; color: var(--lcd-dim);
+    border: 1px solid #24393d; border-radius: 999px; padding: 4px 9px;
+    background: rgba(134,219,230,.07);
+  }
+  @media (max-width: 480px) { .brand-tag { display: none; } }
   .lcd input {
     height: 30px; background: #061011; border: 1px solid #1e3236; border-radius: var(--r-sm);
     color: var(--lcd); font: inherit; font-size: 12px; padding: 0 9px; min-width: 0;
@@ -92,7 +109,7 @@
   /* ---- buttons ---- */
   button {
     font: inherit; color: var(--ink); cursor: pointer;
-    height: 34px; padding: 0 15px;
+    height: 34px; padding: 0 15px; touch-action: manipulation;
     display: inline-flex; align-items: center; justify-content: center; gap: 6px;
     background: linear-gradient(180deg, #2d2d34, #1c1c21);
     border: 1px solid var(--hair); border-radius: var(--r-md);
@@ -102,6 +119,9 @@
   button:hover { border-color: #46464f; }
   button:active { transform: translateY(1px); box-shadow: inset 0 1px 0 var(--edge); }
   button:disabled { opacity: .4; cursor: default; transform: none; }
+  /* display:inline-flex выше сам по себе бьёт [hidden] (у него display:none
+     только в юзер-агент стилях, а не в наших) — возвращаем это явно */
+  button[hidden] { display: none; }
   button.primary {
     background: linear-gradient(180deg, #f5904a, var(--accent-lo));
     border-color: #8a4a1e; color: var(--accent-ink);
@@ -269,6 +289,58 @@
   .catalog-item .meta { flex: 1; min-width: 140px; }
   .catalog-item .name { font-weight: 600; }
   .catalog-item .sub { color: var(--faint); font-size: 11px; }
+  .publish-warn { color: var(--bad); }
+
+  /* ---- Guide: 4-step onboarding ---- */
+  .guide-modal { width: min(620px, 100%); }
+  .guide-dots { display: flex; gap: 6px; justify-content: center; margin: 2px 0 4px; }
+  .guide-dots i {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--hair);
+    transition: background .15s, transform .15s;
+  }
+  .guide-dots i.on { background: var(--accent); transform: scale(1.25); }
+  .guide-step { display: none; flex-direction: column; gap: 12px; }
+  .guide-step.on { display: flex; }
+  .guide-step h3 { margin: 0; font-size: 17px; letter-spacing: .01em; }
+  .guide-step p { margin: 0; color: var(--dim); font-size: 13px; line-height: 1.6; }
+  .guide-step p b { color: var(--ink); }
+  .guide-nav { display: flex; align-items: center; gap: 8px; }
+  .guide-nav .spacer { flex: 1; }
+
+  /* мини-иллюстрация «4 банка × 16 пэдов» на шаге 2 */
+  .bank-mocks { display: flex; flex-wrap: wrap; gap: 10px; }
+  .bank-mock {
+    flex: 1 1 128px; min-width: 128px; background: #17171b; border: 1px solid var(--hair-soft);
+    border-radius: var(--r-md); padding: 9px; display: flex; flex-direction: column; gap: 7px;
+  }
+  .bank-mock header { display: flex; align-items: center; gap: 7px; }
+  .bank-mock .id {
+    width: 18px; height: 18px; border-radius: 5px; display: grid; place-items: center;
+    font-size: 10px; font-weight: 800; color: #0a0a0b; flex: none;
+  }
+  .bank-mock .role { font-size: 11px; font-weight: 700; color: var(--ink); }
+  .bank-mock .grid16 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; }
+  .bank-mock .grid16 span { aspect-ratio: 1; border-radius: 2px; background: #2a2a30; }
+  .bank-mock .grid16 span.on { background: var(--bm-color, var(--accent)); }
+  .bank-mock.bank-a .id { background: #f0822f; }
+  .bank-mock.bank-b .id { background: #8fd6ff; }
+  .bank-mock.bank-c .id { background: #86dbe6; }
+  .bank-mock.bank-d .id { background: #d98fe6; }
+  .bank-mock.bank-a { --bm-color: #f0822f; }
+  .bank-mock.bank-b { --bm-color: #8fd6ff; }
+  .bank-mock.bank-c { --bm-color: #86dbe6; }
+  .bank-mock.bank-d { --bm-color: #d98fe6; }
+
+  /* мини-иллюстрация шагов build->publish->PR / catalog->load на шагах 3-4 */
+  .flow-mocks { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+  .flow-mocks .step {
+    flex: 1 1 100px; min-width: 92px; background: #17171b; border: 1px solid var(--hair-soft);
+    border-radius: var(--r-md); padding: 10px 8px; text-align: center;
+  }
+  .flow-mocks .step .ico { font-size: 18px; line-height: 1; margin-bottom: 6px; }
+  .flow-mocks .step .lbl { font-size: 11px; font-weight: 700; color: var(--ink); }
+  .flow-mocks .arrow { color: var(--faint); font-size: 16px; flex: none; }
+  @media (max-width: 480px) { .flow-mocks .arrow { display: none; } }
 </style>
 </head>
 <body>
@@ -276,9 +348,14 @@
   <div class="panel">
     <header class="lcd molded">
       <div class="hrow">
-        <span class="brand">GENIUS·PAD<small>BUILDER</small></span>
+        <span class="brand">
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <span class="brand-word">GENIUS<b>·</b>PAD</span>
+          <span class="brand-tag">BUILDER</span>
+        </span>
         <span class="spacer"></span>
         <span class="actions">
+          <button id="guideBtn" class="ghost small" title="How this works">Guide</button>
           <button id="catalogBtn" class="ghost small">Catalog</button>
           <button id="loadBtn" class="ghost small">Load</button>
           <button id="publishBtn" class="ghost small">Publish</button>
@@ -346,6 +423,69 @@
     </div>
     <div class="ed-row">
       <button class="small" id="publishCopy">Copy entry JSON</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="guideBackdrop">
+  <div class="modal molded guide-modal">
+    <div class="modal-head">
+      <h2>How this works</h2>
+      <button class="ghost small" id="guideClose">Close</button>
+    </div>
+    <div class="guide-dots" id="guideDots"></div>
+
+    <div class="guide-step on" data-step="0">
+      <h3>Sounds for Genius·Pad, built right here</h3>
+      <p>Drop audio onto a 64-pad grid, trim it, name it, and export a
+        <b>.gp</b> kit file — the Genius·Pad app loads it straight in. Nothing
+        leaves your browser until <b>you</b> choose to publish it.</p>
+    </div>
+
+    <div class="guide-step" data-step="1">
+      <h3>4 banks × 16 pads</h3>
+      <p>Not required, but kits read best — and play best under your
+        fingers — when each bank sticks to a role:</p>
+      <div class="bank-mocks" id="guideBanks"></div>
+    </div>
+
+    <div class="guide-step" data-step="2">
+      <h3>Build it, then share it</h3>
+      <div class="flow-mocks">
+        <div class="step"><div class="ico">🎛️</div><div class="lbl">Build</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="ico">📦</div><div class="lbl">Publish</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="ico">🔀</div><div class="lbl">Pull request</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="ico">✅</div><div class="lbl">Merged</div></div>
+      </div>
+      <p><b>Publish</b> hands you the <b>.gp</b> file and a ready-made
+        <b>catalog.json</b> entry. Upload the file to the catalog repo, paste
+        the entry in, open a Pull Request — the owner reviews and merges. No
+        account or backend needed beyond GitHub itself.</p>
+    </div>
+
+    <div class="guide-step" data-step="3">
+      <h3>Or just grab one</h3>
+      <div class="flow-mocks">
+        <div class="step"><div class="ico">📚</div><div class="lbl">Catalog</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="ico">⬇️</div><div class="lbl">Load / Download</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="ico">🎚️</div><div class="lbl">Play</div></div>
+      </div>
+      <p>Open <b>Catalog</b>, pick a kit — <b>Load</b> drops it straight into
+        this editor, <b>Download</b> just saves the file. Every download is
+        checked against its published checksum first. Browsing kits inside
+        the Genius·Pad app itself is coming next.</p>
+    </div>
+
+    <div class="guide-nav">
+      <button class="ghost small" id="guidePrev">Back</button>
+      <span class="spacer"></span>
+      <button class="small" id="guideNext">Next</button>
+      <button class="primary small" id="guideDone">Let's build</button>
     </div>
   </div>
 </div>
@@ -936,7 +1076,12 @@
     openModal(publishBackdrop);
     C.sha256Hex(a.bytes).then(function (hex) {
       var entry = C.buildCatalogEntry({ name: state.name, author: state.author, bpm: state.bpm }, a.bytes, hex);
-      $("publishMeta").textContent = (a.bytes.length / 1024 / 1024).toFixed(2) + " MB · sha256 " + hex.slice(0, 12) + "…";
+      var mb = (a.bytes.length / 1024 / 1024).toFixed(2);
+      var over = a.bytes.length > C.MAX_KIT_BYTES;
+      var meta = $("publishMeta");
+      meta.textContent = mb + " MB · sha256 " + hex.slice(0, 12) + "…" +
+        (over ? " · over the " + (C.MAX_KIT_BYTES / 1024 / 1024) + " MB catalog limit — trim some samples" : "");
+      meta.className = "hint" + (over ? " publish-warn" : "");
       $("publishSnippet").value = JSON.stringify(entry, null, 2) + ",";
       $("publishDownload").onclick = function () { downloadBytes(publishBytes, entry.id + C.GPAD_EXT); };
     });
@@ -956,6 +1101,49 @@
     var branch = publishBranchInput.value.trim() || "main";
     window.open(repo + "/upload/" + branch + "/kits", "_blank");
   };
+
+  // ---- guide: 4-шаговый онбординг, авто-открытие один раз (localStorage) ----
+  var GUIDE_BANKS = [
+    { cls: "bank-a", id: "A", role: "Core rhythm", on: [0,1,2,3,4,5,6,7,12] },
+    { cls: "bank-b", id: "B", role: "Bass & 808s", on: [0,1,2,3] },
+    { cls: "bank-c", id: "C", role: "Melodic chops", on: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15] },
+    { cls: "bank-d", id: "D", role: "FX & vocals", on: [0,1,2,3,4,5,6,7,8,12,13,14,15] },
+  ];
+  (function renderGuideBanks() {
+    var el = $("guideBanks"); if (!el) return;
+    el.innerHTML = GUIDE_BANKS.map(function (b) {
+      var cells = "";
+      for (var i = 0; i < 16; i++) cells += '<span class="' + (b.on.indexOf(i) >= 0 ? "on" : "") + '"></span>';
+      return '<div class="bank-mock ' + b.cls + '"><header><span class="id">' + b.id + '</span>' +
+        '<span class="role">' + b.role + '</span></header><div class="grid16">' + cells + "</div></div>";
+    }).join("");
+  })();
+
+  var guideBackdrop = $("guideBackdrop");
+  var guideStepEls = Array.prototype.slice.call(document.querySelectorAll(".guide-step"));
+  var guideDotsEl = $("guideDots");
+  guideDotsEl.innerHTML = guideStepEls.map(function () { return "<i></i>"; }).join("");
+  var guideDotEls = Array.prototype.slice.call(guideDotsEl.children);
+  var guideStep = 0;
+  function renderGuideStep() {
+    guideStepEls.forEach(function (el, i) { el.classList.toggle("on", i === guideStep); });
+    guideDotEls.forEach(function (el, i) { el.classList.toggle("on", i === guideStep); });
+    $("guidePrev").style.visibility = guideStep === 0 ? "hidden" : "visible";
+    var last = guideStep === guideStepEls.length - 1;
+    $("guideNext").hidden = last; $("guideDone").hidden = !last;
+  }
+  function openGuide(fromStart) {
+    if (fromStart) guideStep = 0;
+    renderGuideStep();
+    openModal(guideBackdrop);
+    lsSet("gpad.guideSeen", "1");
+  }
+  wireModalClose(guideBackdrop, "guideClose");
+  $("guideBtn").onclick = function () { openGuide(true); };
+  $("guideNext").onclick = function () { if (guideStep < guideStepEls.length - 1) { guideStep++; renderGuideStep(); } };
+  $("guidePrev").onclick = function () { if (guideStep > 0) { guideStep--; renderGuideStep(); } };
+  $("guideDone").onclick = function () { closeModal(guideBackdrop); };
+  if (!lsGet("gpad.guideSeen", "")) openGuide(true);
 
   // ---- boot ----
   var appEl = $("app"), gridWrapEl = document.querySelector(".gridwrap");

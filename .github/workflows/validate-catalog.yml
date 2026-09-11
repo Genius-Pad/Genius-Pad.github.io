@@ -1,0 +1,29 @@
+name: Validate catalog
+
+# Проверяет catalog.json + kits/*.gp на каждый PR, который их трогает, плюс
+# push в master (на случай прямого коммита от владельца) и вручную
+# (workflow_dispatch). Ничего не публикует и не мержит — только блокирует
+# PR красной галочкой, если что-то не сходится.
+on:
+  pull_request:
+    paths:
+      - catalog.json
+      - kits/**
+      - gpad-core.js
+      - scripts/validate-catalog.cjs
+  push:
+    branches: [master]
+    paths:
+      - catalog.json
+      - kits/**
+  workflow_dispatch: {}
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: node scripts/validate-catalog.cjs
