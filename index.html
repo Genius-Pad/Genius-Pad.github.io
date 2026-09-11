@@ -257,12 +257,6 @@
   .modal-head { display: flex; align-items: center; gap: 10px; }
   .modal-head h2 { margin: 0; font-size: 15px; letter-spacing: .04em; flex: 1; }
   .hint { color: var(--faint); font-size: 12px; line-height: 1.5; }
-  .steps { margin: 0; padding-left: 20px; color: var(--dim); font-size: 13px; line-height: 1.7; }
-  textarea.snippet {
-    width: 100%; min-height: 110px; resize: vertical;
-    background: #0f0f12; border: 1px solid var(--hair); border-radius: var(--r-sm);
-    color: var(--ink); font-size: 12px; padding: 9px 10px;
-  }
   .catalog-list { display: flex; flex-direction: column; gap: 8px; }
   .catalog-item {
     display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
@@ -383,41 +377,18 @@
       <button class="ghost small" id="publishClose">Close</button>
     </div>
 
-    <p class="hint">Send your kit to the catalog owner for review — no GitHub account, nothing to fill in but a name.</p>
+    <p class="hint">Publishes straight to the shared Catalog — no GitHub account, nothing to fill in but a name.</p>
     <div class="ed-row">
-      <button class="primary small" id="publishDownload">Download .gp</button>
+      <button class="ghost small" id="publishDownload">Download .gp</button>
       <span class="hint" id="publishMeta"></span>
     </div>
     <div class="ed-row">
-      <input class="lbl" id="submitNote" placeholder="anything the reviewer should know? (optional)" maxlength="300">
+      <input class="lbl" id="submitNote" placeholder="anything worth mentioning? (optional)" maxlength="300">
     </div>
     <div class="ed-row">
-      <button class="primary small" id="submitBtn">Submit for review</button>
+      <button class="primary small" id="submitBtn">Publish to Catalog</button>
     </div>
     <div class="hint" id="submitResult"></div>
-
-    <div class="ed-row" style="margin-top: 2px;">
-      <button class="ghost small" id="advancedToggle">Advanced: publish via GitHub yourself ▾</button>
-    </div>
-    <div id="publishAdvancedPane" hidden>
-      <ol class="steps">
-        <li>Download the <span class="mono">.gp</span> above.</li>
-        <li>Open your catalog repo's upload page and drop the file into <span class="mono">kits/</span>.</li>
-        <li>Copy the entry and add it to <span class="mono">catalog.json</span> in the same commit/PR.</li>
-        <li>Open a Pull Request — the catalog owner reviews and merges.</li>
-      </ol>
-      <div class="ed-row">
-        <input class="lbl" id="publishRepo" placeholder="https://github.com/<owner>/<repo>">
-        <input class="lbl" id="publishBranch" placeholder="main" style="flex: 0 1 90px;">
-        <button class="small" id="publishOpenUpload">Open upload page</button>
-      </div>
-      <div class="ed-row">
-        <textarea class="snippet mono" id="publishSnippet" readonly rows="8"></textarea>
-      </div>
-      <div class="ed-row">
-        <button class="small" id="publishCopy">Copy entry JSON</button>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -450,14 +421,11 @@
         <div class="arrow">→</div>
         <div class="step"><div class="ico">📦</div><div class="lbl">Publish</div></div>
         <div class="arrow">→</div>
-        <div class="step"><div class="ico">🔀</div><div class="lbl">Pull request</div></div>
-        <div class="arrow">→</div>
-        <div class="step"><div class="ico">✅</div><div class="lbl">Merged</div></div>
+        <div class="step"><div class="ico">✅</div><div class="lbl">Live</div></div>
       </div>
-      <p><b>Publish</b> hands you the <b>.gp</b> file and a ready-made
-        <b>catalog.json</b> entry. Upload the file to the catalog repo, paste
-        the entry in, open a Pull Request — the owner reviews and merges. No
-        account or backend needed beyond GitHub itself.</p>
+      <p>Click <b>Publish</b>, give it a name, hit <b>Publish to Catalog</b> —
+        that's it. No GitHub account, nothing to upload by hand. It's live in
+        the shared Catalog right away.</p>
     </div>
 
     <div class="guide-step" data-step="3">
@@ -471,8 +439,8 @@
       </div>
       <p>Open <b>Catalog</b>, pick a kit — <b>Load</b> drops it straight into
         this editor, <b>Download</b> just saves the file. Every download is
-        checked against its published checksum first. Browsing kits inside
-        the Genius·Pad app itself is coming next.</p>
+        checked against its published checksum first. The Genius·Pad app has
+        its own Catalog too, so kits published here show up there as well.</p>
     </div>
 
     <div class="guide-nav">
@@ -1053,30 +1021,26 @@
     }).then(onOk).catch(function (err) { toast(err.message || "download failed", true); });
   }
 
-  // ---- publish: Submit for review (без гитхаба, через маленький бэкенд) + ручной путь через PR ----
+  // ---- publish: прямая публикация в каталог через маленький бэкенд, без гитхаба ----
   // Бэкенд свой, под этот же каталог; для чужого форка можно переопределить в консоли:
   // localStorage.setItem('gpad.submitUrl', 'https://<свой-воркер>.workers.dev')
+  //
+  // Защита от накрутки (лимит заявок с IP, суточный потолок авто-публикации)
+  // живёт на сервере и намеренно не анонсируется тут заранее — обычный
+  // человек публикует мгновенно и ничего об этом не должен знать; текст
+  // про "queued" ниже показывается только тем, кто реально в неё упёрся.
   var SUBMIT_URL = lsGet("gpad.submitUrl", "https://gpad-submit.podval-games.workers.dev");
 
-  var publishBackdrop = $("publishBackdrop"), publishRepoInput = $("publishRepo"), publishBranchInput = $("publishBranch");
-  publishRepoInput.value = lsGet("gpad.repoUrl", "");
-  publishBranchInput.value = lsGet("gpad.repoBranch", "main");
-  publishRepoInput.addEventListener("change", function () { lsSet("gpad.repoUrl", this.value.trim()); });
-  publishBranchInput.addEventListener("change", function () { lsSet("gpad.repoBranch", this.value.trim() || "main"); });
+  var publishBackdrop = $("publishBackdrop");
   wireModalClose(publishBackdrop, "publishClose");
-  $("advancedToggle").onclick = function () {
-    var pane = $("publishAdvancedPane"); pane.hidden = !pane.hidden;
-    this.textContent = "Advanced: publish via GitHub yourself " + (pane.hidden ? "▾" : "▴");
-  };
 
   var publishBytes = null, publishEntry = null;
   $("publishBtn").onclick = function () {
     var a = assembleCurrent();
     publishBytes = a.bytes; publishEntry = null;
     $("publishMeta").textContent = "computing checksum…";
-    $("publishSnippet").value = "";
     $("submitResult").textContent = ""; $("submitResult").className = "hint";
-    $("submitBtn").disabled = false; $("submitBtn").textContent = "Submit for review";
+    $("submitBtn").disabled = false; $("submitBtn").textContent = "Publish to Catalog";
     openModal(publishBackdrop);
     C.sha256Hex(a.bytes).then(function (hex) {
       var entry = C.buildCatalogEntry({ name: state.name, author: state.author, bpm: state.bpm }, a.bytes, hex);
@@ -1087,14 +1051,13 @@
       meta.textContent = mb + " MB · sha256 " + hex.slice(0, 12) + "…" +
         (over ? " · over the " + (C.MAX_KIT_BYTES / 1024 / 1024) + " MB catalog limit — trim some samples" : "");
       meta.className = "hint" + (over ? " publish-warn" : "");
-      $("publishSnippet").value = JSON.stringify(entry, null, 2) + ",";
       $("publishDownload").onclick = function () { downloadBytes(publishBytes, entry.id + C.GPAD_EXT); };
     });
   };
   $("submitBtn").onclick = function () {
     if (!publishBytes || !publishEntry) return;
     var btn = this, resultEl = $("submitResult");
-    btn.disabled = true; btn.textContent = "Sending…";
+    btn.disabled = true; btn.textContent = "Publishing…";
     resultEl.className = "hint"; resultEl.textContent = "";
     var fd = new FormData();
     fd.append("file", new Blob([publishBytes], { type: "application/octet-stream" }), publishEntry.id + C.GPAD_EXT);
@@ -1110,32 +1073,17 @@
         resultEl.textContent = "It's live — already in the shared Catalog.";
         toast("published to the catalog");
       } else {
-        btn.textContent = "Submitted ✓";
-        resultEl.textContent = "Sent — the catalog owner will review it. While you wait, you can keep using this kit "
-          + "right now: it's still on your device as the .gp file above (Download it, or just keep building in "
-          + "this tab) — it'll show up in the shared Catalog once approved.";
-        toast("submitted for review");
+        btn.textContent = "Queued ✓";
+        resultEl.textContent = "You've hit the submission limit for the moment, so this one's queued for a quick "
+          + "manual check instead of publishing instantly. You can keep using it locally while you wait — "
+          + "it's still on your device as the .gp file above — it'll show up in the Catalog once reviewed.";
+        toast("queued for review");
       }
     }).catch(function (err) {
-      btn.disabled = false; btn.textContent = "Submit for review";
+      btn.disabled = false; btn.textContent = "Publish to Catalog";
       resultEl.className = "hint publish-warn";
-      resultEl.textContent = "Couldn't submit: " + err.message + " — you can still use \"Download .gp\" above and publish it yourself (see Advanced below).";
+      resultEl.textContent = "Couldn't publish: " + err.message + " — you can still use \"Download .gp\" above and share the file another way.";
     });
-  };
-  $("publishCopy").onclick = function () {
-    var ta = $("publishSnippet"); ta.focus(); ta.select();
-    function fallback() { try { document.execCommand("copy"); toast("copied"); } catch (e) { toast("select and copy manually", true); } }
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(ta.value).then(function () { toast("copied"); }).catch(fallback);
-    } else {
-      fallback();
-    }
-  };
-  $("publishOpenUpload").onclick = function () {
-    var repo = publishRepoInput.value.trim().replace(/\/+$/, "");
-    if (!repo) { toast("set a catalog repo URL first", true); return; }
-    var branch = publishBranchInput.value.trim() || "main";
-    window.open(repo + "/upload/" + branch + "/kits", "_blank");
   };
 
   // ---- guide: 4-шаговый онбординг, авто-открытие один раз (localStorage) ----
