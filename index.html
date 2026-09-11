@@ -61,29 +61,12 @@
   .hrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; row-gap: 6px; min-width: 0; }
   .hrow .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-left: auto; }
   .hrow + .hrow { padding-top: 8px; border-top: 1px solid rgba(134,219,230,.10); }
-  /* логотип: значок-«пэд» + жирный wordmark + отдельный бейдж BUILDER —
-     раньше это была одна мелкая строчка капсом, читалась как дешёвая заглушка */
-  .brand { display: flex; align-items: center; gap: 10px; white-space: nowrap; min-width: 0; }
-  .brand-mark {
-    flex: none; width: 22px; height: 22px; padding: 3px; border-radius: 6px;
-    display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 2px;
-    background: linear-gradient(180deg, #123338, #071113); border: 1px solid #24393d;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+  .brand {
+    font-weight: 700; letter-spacing: .12em; color: var(--lcd);
+    text-shadow: 0 0 10px rgba(134,219,230,.4); white-space: nowrap;
+    font-size: clamp(20px, 3.4vmin, 30px);
   }
-  .brand-mark i { border-radius: 2px; background: var(--accent); box-shadow: 0 0 5px rgba(240,130,47,.6); }
-  .brand-mark i:nth-child(2), .brand-mark i:nth-child(3) { background: var(--lcd); box-shadow: 0 0 5px rgba(134,219,230,.55); }
-  .brand-word {
-    font-weight: 800; letter-spacing: .03em; color: var(--lcd);
-    text-shadow: 0 0 12px rgba(134,219,230,.4);
-    font-size: clamp(18px, 2.6vmin, 24px); line-height: 1;
-  }
-  .brand-word b { color: var(--accent); font-weight: 800; }
-  .brand-tag {
-    flex: none; font-size: 10px; font-weight: 700; letter-spacing: .16em; color: var(--lcd-dim);
-    border: 1px solid #24393d; border-radius: 999px; padding: 4px 9px;
-    background: rgba(134,219,230,.07);
-  }
-  @media (max-width: 480px) { .brand-tag { display: none; } }
+  .brand small { color: var(--lcd-dim); margin-left: .6em; letter-spacing: .2em; font-weight: 600; }
   .lcd input {
     height: 30px; background: #061011; border: 1px solid #1e3236; border-radius: var(--r-sm);
     color: var(--lcd); font: inherit; font-size: 12px; padding: 0 9px; min-width: 0;
@@ -348,11 +331,7 @@
   <div class="panel">
     <header class="lcd molded">
       <div class="hrow">
-        <span class="brand">
-          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-          <span class="brand-word">GENIUS<b>·</b>PAD</span>
-          <span class="brand-tag">BUILDER</span>
-        </span>
+        <span class="brand">GENIUS·PAD<small>BUILDER</small></span>
         <span class="spacer"></span>
         <span class="actions">
           <button id="guideBtn" class="ghost small" title="How this works">Guide</button>
