@@ -6,10 +6,16 @@ Two ways to do this. Most people want the first one.
 
 No account, no CLI, nothing to fill in but a name. Open the
 [builder](https://genius-pad.github.io/), drop sounds onto the pad grid,
-trim/name them, click **Publish**, then **Submit for review**. That's it —
-your kit goes into a queue the catalog owner reviews (see "What happens
-after you submit" below). You keep using your own `.gp` locally the whole
-time; submitting doesn't take it away from you or require anything else.
+trim/name them, click **Publish**, then **Submit for review**.
+
+A kit that's structurally valid and under 20 MB is usually published
+**immediately** — you'll see "Published ✓" and it's already in the
+Catalog. There are limits on how many kits can auto-publish this way (per
+address and overall, per day) specifically to stop someone from scripting
+a flood of submissions; if you hit one, your kit isn't rejected, it just
+drops into the same review queue as before, and you'll see "Submitted ✓"
+instead. Either way, you keep using your own `.gp` locally the whole time —
+submitting doesn't take it away from you.
 
 ## The GitHub way: open a Pull Request yourself
 
@@ -49,13 +55,19 @@ against `master`.
 
 ## What happens after you submit (the easy way)
 
-Submissions go to `gpad-submit-worker`, a small Cloudflare Worker with its
-own review queue (`admin.html`) — not straight into the catalog. It checks
-the kit's structure and size the moment you submit (same rules as below),
-holds it, and only becomes a real commit to this repo once the catalog
-owner clicks **Approve**. There's no notification when that happens (no
-account to notify) — check back on the site, your kit will just be in the
-Catalog once it's in.
+Submissions go to `gpad-submit-worker`, a small Cloudflare Worker. It
+checks the kit's structure and size the moment you submit (same rules as
+below) and, if that passes and nobody's hit the daily auto-publish limits,
+commits it straight to this repo's `catalog.json`/`kits/` — no human in the
+loop for that particular commit. That's a deliberate tradeoff: nobody
+listens to the kit before it's live, only checks that the file itself is
+real. The catalog owner can pull anything back off with **Remove** in
+`admin.html` (also token-gated) just as fast as it went up.
+
+If the auto-publish limits are hit (or the structural checks want a closer
+look for some other reason), your kit lands in the same manual review
+queue as always instead — no notification when that resolves (no account
+to notify), check back on the site.
 
 ## What happens automatically (the GitHub way)
 

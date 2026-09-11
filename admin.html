@@ -50,6 +50,9 @@
   .item .note { color: var(--dim); font-size: 13px; background: #101014; border-radius: var(--r-sm); padding: 8px 10px; }
   .empty { color: var(--faint); text-align: center; padding: 30px 0; }
   a.dl { display: none; }
+  .tabs { display: flex; gap: 8px; }
+  .tabs button { flex: 1; }
+  .tabs button[aria-selected="true"] { background: linear-gradient(180deg, #2f4448, #1a2427); border-color: var(--lcd-dim); color: var(--lcd); }
 </style>
 </head>
 <body>
@@ -62,6 +65,11 @@
     <input id="workerUrl" placeholder="worker URL">
     <input id="token" type="password" placeholder="admin token">
     <button class="primary" id="refreshBtn">Refresh</button>
+  </div>
+
+  <div class="tabs">
+    <button id="tabPending" aria-selected="true">Pending review</button>
+    <button id="tabPublished" aria-selected="false">Published</button>
   </div>
 
   <div id="status" class="hint"></div>
@@ -92,14 +100,25 @@
 
   function fmtSize(n) { return n < 1024 * 1024 ? Math.round(n / 1024) + " KB" : (n / 1024 / 1024).toFixed(1) + " MB"; }
 
+  var tab = "pending"; // "pending" | "published"
+  $("tabPending").onclick = function () { setTab("pending"); };
+  $("tabPublished").onclick = function () { setTab("published"); };
+  function setTab(t) {
+    tab = t;
+    $("tabPending").setAttribute("aria-selected", String(t === "pending"));
+    $("tabPublished").setAttribute("aria-selected", String(t === "published"));
+    refresh();
+  }
+
   function refresh() {
     statusEl.textContent = "loading…"; listEl.innerHTML = "";
-    authedFetch("/admin/pending").then(function (res) {
+    var path = tab === "pending" ? "/admin/pending" : "/admin/catalog";
+    authedFetch(path).then(function (res) {
       if (res.status === 401) throw new Error("wrong token");
       return res.json();
     }).then(function (data) {
       if (!data.ok) throw new Error(data.error || "failed");
-      statusEl.textContent = data.items.length + " pending";
+      statusEl.textContent = data.items.length + (tab === "pending" ? " pending" : " published");
       render(data.items);
     }).catch(function (err) {
       statusEl.textContent = "error: " + err.message;
@@ -108,43 +127,55 @@
 
   function render(items) {
     listEl.innerHTML = "";
-    if (!items.length) { listEl.innerHTML = '<div class="empty">nothing waiting on review</div>'; return; }
-    items.sort(function (a, b) { return (b.submittedAt || "").localeCompare(a.submittedAt || ""); });
+    var emptyMsg = tab === "pending" ? "nothing waiting on review" : "no kits published yet";
+    if (!items.length) { listEl.innerHTML = '<div class="empty">' + emptyMsg + "</div>"; return; }
+    var dateField = tab === "pending" ? "submittedAt" : "addedAt";
+    items.sort(function (a, b) { return (b[dateField] || "").localeCompare(a[dateField] || ""); });
     items.forEach(function (it) {
       var row = document.createElement("div");
       row.className = "item";
+      var actionsHtml = tab === "pending"
+        ? '<button data-act="dl">Download</button>' +
+          '<button class="primary" data-act="approve">Approve → publish</button>' +
+          '<button class="bad" data-act="reject">Reject</button>'
+        : '<button data-act="dl">Download</button>' +
+          '<button class="bad" data-act="remove">Remove from catalog</button>';
       row.innerHTML =
         '<div class="name">' + escapeHtml(it.name || it.id) + '</div>' +
         '<div class="sub">' + escapeHtml(it.author || "(no author)") + " · " + it.bpm + " BPM · " + fmtSize(it.sizeBytes) +
-          " · " + escapeHtml((it.submittedAt || "").replace("T", " ").replace(/\..+/, "Z")) + '</div>' +
+          " · " + escapeHtml((it[dateField] || "").replace("T", " ").replace(/\..+/, "Z")) + '</div>' +
         (it.note ? '<div class="note">' + escapeHtml(it.note) + "</div>" : "") +
-        '<div class="row">' +
-          '<button data-act="dl">Download</button>' +
-          '<button class="primary" data-act="approve">Approve → publish</button>' +
-          '<button class="bad" data-act="reject">Reject</button>' +
-          '<span class="hint" data-act="msg"></span>' +
-        "</div>";
-      row.querySelector('[data-act="dl"]').onclick = function () {
-        authedFetch("/admin/pending/" + it.id + "/file").then(function (r) { return r.arrayBuffer(); }).then(function (ab) {
+        '<div class="row">' + actionsHtml + '<span class="hint" data-act="msg"></span></div>';
+
+      var dlBtn = row.querySelector('[data-act="dl"]');
+      dlBtn.onclick = function () {
+        var src = tab === "pending"
+          ? authedFetch("/admin/pending/" + it.id + "/file").then(function (r) { return r.arrayBuffer(); })
+          : fetch("https://genius-pad.github.io/" + it.file).then(function (r) { return r.arrayBuffer(); });
+        src.then(function (ab) {
           var url = URL.createObjectURL(new Blob([ab]));
           dl.href = url; dl.download = it.id + ".gp"; dl.click();
           setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
         });
       };
-      row.querySelector('[data-act="approve"]').onclick = function () { act(it.id, "approve", row); };
-      row.querySelector('[data-act="reject"]').onclick = function () { act(it.id, "reject", row); };
+      if (tab === "pending") {
+        row.querySelector('[data-act="approve"]').onclick = function () { act(it.id, "approve", row, "publishing…", "published ✓"); };
+        row.querySelector('[data-act="reject"]').onclick = function () { act(it.id, "reject", row, "rejecting…", "rejected"); };
+      } else {
+        row.querySelector('[data-act="remove"]').onclick = function () { act(it.id, "remove", row, "removing…", "removed"); };
+      }
       listEl.appendChild(row);
     });
   }
 
-  function act(id, verb, row) {
+  function act(id, verb, row, pendingMsg, doneMsg) {
     var msg = row.querySelector('[data-act="msg"]');
     row.querySelectorAll("button").forEach(function (b) { b.disabled = true; });
-    msg.textContent = verb === "approve" ? "publishing…" : "rejecting…";
+    msg.textContent = pendingMsg;
     authedFetch("/admin/" + verb + "/" + id, { method: "POST" }).then(function (res) { return res.json(); }).then(function (data) {
       if (!data.ok) throw new Error(data.error || "failed");
       row.style.opacity = ".5";
-      msg.textContent = verb === "approve" ? "published ✓" : "rejected";
+      msg.textContent = doneMsg;
       setTimeout(refresh, 900);
     }).catch(function (err) {
       row.querySelectorAll("button").forEach(function (b) { b.disabled = false; });

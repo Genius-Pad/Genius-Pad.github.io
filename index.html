@@ -1104,12 +1104,18 @@
       return res.json().then(function (data) { return { ok: res.ok, data: data }; });
     }).then(function (r) {
       if (!r.ok || !r.data.ok) throw new Error((r.data && r.data.error) || "submit failed");
-      btn.textContent = "Submitted ✓";
       resultEl.className = "hint";
-      resultEl.textContent = "Sent — the catalog owner will review it. While you wait, you can keep using this kit "
-        + "right now: it's still on your device as the .gp file above (Download it, or just keep building in "
-        + "this tab) — it'll show up in the shared Catalog once approved.";
-      toast("submitted for review");
+      if (r.data.published) {
+        btn.textContent = "Published ✓";
+        resultEl.textContent = "It's live — already in the shared Catalog.";
+        toast("published to the catalog");
+      } else {
+        btn.textContent = "Submitted ✓";
+        resultEl.textContent = "Sent — the catalog owner will review it. While you wait, you can keep using this kit "
+          + "right now: it's still on your device as the .gp file above (Download it, or just keep building in "
+          + "this tab) — it'll show up in the shared Catalog once approved.";
+        toast("submitted for review");
+      }
     }).catch(function (err) {
       btn.disabled = false; btn.textContent = "Submit for review";
       resultEl.className = "hint publish-warn";
