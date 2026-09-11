@@ -1,26 +1,36 @@
 {
-    "updatedAt":  "2026-09-11T13:49:18Z",
-    "kits":  [
-                 {
-                     "id":  "demo-drums-158f88",
-                     "file":  "kits/demo-drums-158f88.gp",
-                     "name":  "Demo Drums",
-                     "addedAt":  "2026-09-11T13:49:18Z",
-                     "author":  "genius-pad",
-                     "sizeBytes":  63668,
-                     "bpm":  92,
-                     "sha256":  "158f88d4344b18037e2b8a2b72e8c990f5ba80c6a3a2575fcd3f7290ef81e063"
-                 },
-                 {
-                     "id":  "demo-tones-db69ca",
-                     "file":  "kits/demo-tones-db69ca.gp",
-                     "name":  "Demo Tones",
-                     "addedAt":  "2026-09-11T13:49:18Z",
-                     "author":  "genius-pad",
-                     "sizeBytes":  153525,
-                     "bpm":  100,
-                     "sha256":  "db69ca9d5c4b02b59bcfd111dcb02d60eec8f7cafb7da1c445b1c8fd42642109"
-                 }
-             ],
-    "version":  1
+  "updatedAt": "2026-09-11T19:56:28.598Z",
+  "kits": [
+    {
+      "id": "demo-drums-158f88",
+      "file": "kits/demo-drums-158f88.gp",
+      "name": "Demo Drums",
+      "addedAt": "2026-09-11T13:49:18Z",
+      "author": "genius-pad",
+      "sizeBytes": 63668,
+      "bpm": 92,
+      "sha256": "158f88d4344b18037e2b8a2b72e8c990f5ba80c6a3a2575fcd3f7290ef81e063"
+    },
+    {
+      "id": "demo-tones-db69ca",
+      "file": "kits/demo-tones-db69ca.gp",
+      "name": "Demo Tones",
+      "addedAt": "2026-09-11T13:49:18Z",
+      "author": "genius-pad",
+      "sizeBytes": 153525,
+      "bpm": 100,
+      "sha256": "db69ca9d5c4b02b59bcfd111dcb02d60eec8f7cafb7da1c445b1c8fd42642109"
+    },
+    {
+      "id": "e2e-test-kit-ae726d",
+      "name": "E2E Test Kit",
+      "author": "ci-e2e",
+      "bpm": 100,
+      "file": "kits/e2e-test-kit-ae726d.gp",
+      "sizeBytes": 34501,
+      "sha256": "ae726de1a57a3c7845d11f1fe682dbded54f3abddfc0ef3fc30d146590a33c38",
+      "addedAt": "2026-09-11T19:56:27.236Z"
+    }
+  ],
+  "version": 1
 }
