@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-12T01:59:32.492Z",
+  "updatedAt": "2026-09-12T01:59:52.559Z",
   "kits": [
     {
       "id": "demo-drums-158f88",
@@ -50,6 +50,16 @@
       "sizeBytes": 14863362,
       "sha256": "ae443fcd4afe6791d075f6bd0a74f84b0b01ec6a31b774319722e971a8ee1c57",
       "addedAt": "2026-09-12T01:59:27.695Z"
+    },
+    {
+      "id": "araab-vol-4-ccdc1c",
+      "name": "Araab Vol 4",
+      "author": "KOLYAS",
+      "bpm": 90,
+      "file": "kits/araab-vol-4-ccdc1c.gp",
+      "sizeBytes": 5383055,
+      "sha256": "ccdc1cee40179b76a3cda2a32d03be31bb4c3007a67bad9c8a870be88dbe0377",
+      "addedAt": "2026-09-12T01:59:49.358Z"
     }
   ],
   "version": 1
