@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-27T09:14:05.619Z",
+  "updatedAt": "2026-09-27T09:47:21.638Z",
   "kits": [
     {
       "id": "demo-drums-158f88",
@@ -70,6 +70,16 @@
       "sizeBytes": 16685,
       "sha256": "5e60da1c53fa059fa7b760329882c5cf97aa02cbaf04a30aabdd3135b9dfe47b",
       "addedAt": "2026-09-27T09:14:03.213Z"
+    },
+    {
+      "id": "untitled-kit-266dae",
+      "name": "Untitled Kit",
+      "author": "",
+      "bpm": 90,
+      "file": "kits/untitled-kit-266dae.gp",
+      "sizeBytes": 977494,
+      "sha256": "266daecf6976e5fbe5238049d3709bf7a349d83d5c6fff3d6923d468cf975d49",
+      "addedAt": "2026-09-27T09:47:18.463Z"
     }
   ],
   "version": 1
