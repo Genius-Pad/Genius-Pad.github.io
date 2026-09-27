@@ -1514,8 +1514,19 @@
     ctx.stroke(); ctx.globalAlpha = 1;
   }
 
+  /*
+   * Порядок пэдов на экране — как на самом приборе (`ui/pads/PadGrid.kt`
+   * рисует `for (row in 3 downTo 0)`): верхний ряд — 13..16, нижний — 1..4,
+   * по-MPC. В файле, в `state.banks[b].pads` и в `kit.json` пэды по-прежнему
+   * 0..15 по индексу — меняется только раскладка ячеек, иначе кит, собранный
+   * в билдере «сверху вниз», в приборе оказывался снизу.
+   */
+  var PAD_LAYOUT = [12, 13, 14, 15, 8, 9, 10, 11, 4, 5, 6, 7, 0, 1, 2, 3];
+  /** DOM-ячейка пэда idx (ячейки лежат в порядке PAD_LAYOUT, не по индексу). */
+  function padCell(idx) { return gridEl.children[PAD_LAYOUT.indexOf(idx)]; }
+
   function refreshPad(idx) {
-    var el = gridEl.children[idx]; if (!el) return;
+    var el = padCell(idx); if (!el) return;
     var pad = activeBank().pads[idx];
     var cv = el.querySelector("canvas");
     if (pad && cv) drawPadCanvas(cv, pad);
@@ -1541,12 +1552,12 @@
       };
       wirePadDnd(el, idx);
       gridEl.appendChild(el);
-    })(i);
+    })(PAD_LAYOUT[i]);
   }
 
   function markSelected() {
     for (var i = 0; i < gridEl.children.length; i++)
-      gridEl.children[i].classList.toggle("selected", state.selected === i);
+      gridEl.children[i].classList.toggle("selected", state.selected === PAD_LAYOUT[i]);
   }
   function flash(el) { el.classList.remove("hit"); void el.offsetWidth; el.classList.add("hit"); }
   function escapeHtml(s) { return String(s).replace(/[&<>"]/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]; }); }
@@ -1605,7 +1616,7 @@
   }
 
   function setLabel(idx, text) {
-    var el = gridEl.children[idx]; if (!el) return;
+    var el = padCell(idx); if (!el) return;
     var l = el.querySelector(".label"); if (l) l.textContent = String(text).toUpperCase();
   }
 
@@ -1679,8 +1690,13 @@
     ac.resume();
     var bi = target ? target.bank : state.active, slots = [];
     if (target) slots.push(target.pad);
-    for (var i = 0; i < 16 && slots.length < list.length; i++)
-      if (slots.indexOf(i) < 0 && !state.banks[bi].pads[i]) slots.push(i);
+    // Раскидываем по свободным пэдам в том порядке, в каком они видны (и в
+    // билдере, и на приборе): слева сверху, а не по возрастанию индекса —
+    // иначе первые файлы уезжают в нижний ряд.
+    for (var i = 0; i < 16 && slots.length < list.length; i++) {
+      var idx = PAD_LAYOUT[i];
+      if (slots.indexOf(idx) < 0 && !state.banks[bi].pads[idx]) slots.push(idx);
+    }
     var total = list.length, done = 0, failed = 0;
     function step() {
       if (done + failed < total) return;
@@ -2092,7 +2108,8 @@
     var el = $("guideBanks"); if (!el) return;
     el.innerHTML = GUIDE_BANKS.map(function (b) {
       var cells = "";
-      for (var i = 0; i < 16; i++) cells += '<span class="' + (b.on.indexOf(i) >= 0 ? "on" : "") + '"></span>';
+      // мок читается как настоящая сетка — в том же порядке PAD_LAYOUT
+      for (var i = 0; i < 16; i++) cells += '<span class="' + (b.on.indexOf(PAD_LAYOUT[i]) >= 0 ? "on" : "") + '"></span>';
       return '<div class="bank-mock ' + b.cls + '"><header><span class="id">' + b.id + '</span>' +
         '<span class="role">' + escapeHtml(t(b.roleKey)) + '</span></header><div class="grid16">' + cells + "</div></div>";
     }).join("");
