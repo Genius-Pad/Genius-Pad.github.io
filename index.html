@@ -73,6 +73,8 @@
   }
   .lcd input::placeholder { color: var(--lcd-dim); }
   .lcd input:focus { outline: none; border-color: var(--lcd); }
+  /* Название и автор обязательны для публикации (см. refreshPublishGate). */
+  .lcd input.field-missing { border-color: var(--bad); }
   #kitName { flex: 3 1 0; }
   #kitAuthor { flex: 2 1 0; }
   .bpmwrap { flex: 0 0 68px; position: relative; }
@@ -336,8 +338,8 @@
         </span>
       </div>
       <div class="hrow">
-        <input id="kitName" value="Untitled Kit" placeholder="kit name" aria-label="kit name">
-        <input id="kitAuthor" placeholder="author" aria-label="author">
+        <input id="kitName" placeholder="kit name" aria-label="kit name" maxlength="60" required>
+        <input id="kitAuthor" placeholder="author" aria-label="author" maxlength="60" required>
         <span class="bpmwrap"><input id="kitBpm" class="mono" type="number" min="40" max="300" value="90" aria-label="bpm"><b>BPM</b></span>
       </div>
       <div class="statusline" id="status">drop audio on a pad · wav mp3 ogg m4a flac · empty pads export silent</div>
@@ -358,7 +360,7 @@
 <div class="modal-backdrop" id="catalogBackdrop">
   <div class="modal molded">
     <div class="modal-head">
-      <h2>Catalog</h2>
+      <h2 id="catalogTitle">Catalog</h2>
       <button class="ghost small" id="catalogClose">Close</button>
     </div>
     <div class="ed-row">
@@ -373,11 +375,11 @@
 <div class="modal-backdrop" id="publishBackdrop">
   <div class="modal molded">
     <div class="modal-head">
-      <h2>Publish</h2>
+      <h2 id="publishTitle">Publish</h2>
       <button class="ghost small" id="publishClose">Close</button>
     </div>
 
-    <p class="hint">Publishes straight to the shared Catalog — no GitHub account, nothing to fill in but a name.</p>
+    <p class="hint" id="publishIntro">Publishes straight to the shared Catalog — no GitHub account, nothing to fill in but the kit name and who made it.</p>
     <div class="ed-row">
       <button class="ghost small" id="publishDownload">Download .gp</button>
       <span class="hint" id="publishMeta"></span>
@@ -395,49 +397,49 @@
 <div class="modal-backdrop" id="guideBackdrop">
   <div class="modal molded guide-modal">
     <div class="modal-head">
-      <h2>How this works</h2>
+      <h2 id="guideTitle">How this works</h2>
       <button class="ghost small" id="guideClose">Close</button>
     </div>
     <div class="guide-dots" id="guideDots"></div>
 
     <div class="guide-step on" data-step="0">
-      <h3>Sounds for Genius·Pad, built right here</h3>
-      <p>Drop audio onto a 64-pad grid, trim it, name it, and export a
+      <h3 id="guide0h">Sounds for Genius·Pad, built right here</h3>
+      <p id="guide0p">Drop audio onto a 64-pad grid, trim it, name it, and export a
         <b>.gp</b> kit file — the Genius·Pad app loads it straight in. Nothing
         leaves your browser until <b>you</b> choose to publish it.</p>
     </div>
 
     <div class="guide-step" data-step="1">
-      <h3>4 banks × 16 pads</h3>
-      <p>Not required, but kits read best — and play best under your
+      <h3 id="guide1h">4 banks × 16 pads</h3>
+      <p id="guide1p">Not required, but kits read best — and play best under your
         fingers — when each bank sticks to a role:</p>
       <div class="bank-mocks" id="guideBanks"></div>
     </div>
 
     <div class="guide-step" data-step="2">
-      <h3>Build it, then share it</h3>
+      <h3 id="guide2h">Build it, then share it</h3>
       <div class="flow-mocks">
-        <div class="step"><div class="ico">🎛️</div><div class="lbl">Build</div></div>
+        <div class="step"><div class="ico">🎛️</div><div class="lbl" id="guide2Build">Build</div></div>
         <div class="arrow">→</div>
-        <div class="step"><div class="ico">📦</div><div class="lbl">Publish</div></div>
+        <div class="step"><div class="ico">📦</div><div class="lbl" id="guide2Publish">Publish</div></div>
         <div class="arrow">→</div>
-        <div class="step"><div class="ico">✅</div><div class="lbl">Live</div></div>
+        <div class="step"><div class="ico">✅</div><div class="lbl" id="guide2Live">Live</div></div>
       </div>
-      <p>Click <b>Publish</b>, give it a name, hit <b>Publish to Catalog</b> —
+      <p id="guide2p">Click <b>Publish</b>, give it a name, hit <b>Publish to Catalog</b> —
         that's it. No GitHub account, nothing to upload by hand. It's live in
         the shared Catalog right away.</p>
     </div>
 
     <div class="guide-step" data-step="3">
-      <h3>Or just grab one</h3>
+      <h3 id="guide3h">Or just grab one</h3>
       <div class="flow-mocks">
-        <div class="step"><div class="ico">📚</div><div class="lbl">Catalog</div></div>
+        <div class="step"><div class="ico">📚</div><div class="lbl" id="guide3Catalog">Catalog</div></div>
         <div class="arrow">→</div>
-        <div class="step"><div class="ico">⬇️</div><div class="lbl">Load / Download</div></div>
+        <div class="step"><div class="ico">⬇️</div><div class="lbl" id="guide3Loaddl">Load / Download</div></div>
         <div class="arrow">→</div>
-        <div class="step"><div class="ico">🎚️</div><div class="lbl">Play</div></div>
+        <div class="step"><div class="ico">🎚️</div><div class="lbl" id="guide3Play">Play</div></div>
       </div>
-      <p>Open <b>Catalog</b>, pick a kit — <b>Load</b> drops it straight into
+      <p id="guide3p">Open <b>Catalog</b>, pick a kit — <b>Load</b> drops it straight into
         this editor, <b>Download</b> just saves the file. Every download is
         checked against its published checksum first. The Genius·Pad app has
         its own Catalog too, so kits published here show up there as well.</p>
@@ -463,6 +465,883 @@
   var C = window.GpadCore;
   var BANKS = C.BANK_IDS;
 
+  // ---- i18n: 15 языков, автовыбор по navigator.language --------------
+  // Тот же принцип, что в приложении: переводим обычные слова интерфейса
+  // (кнопки, модалки, тосты), а не термины уровня "железа" — BPM, .gp,
+  // имена пресетов и т.п. остаются как есть на любом языке.
+  var I18N = {
+    en: {
+      kit_name_ph: "kit name", kit_author_ph: "author",
+      status_default: "drop audio on a pad · wav mp3 ogg m4a flac · empty pads export silent",
+      btn_guide: "Guide", btn_catalog: "Catalog", btn_load: "Load", btn_publish: "Publish", btn_export: "Export .gp",
+      ed_default_title: "PAD", ed_pick_pad: "pick a pad",
+      ed_import_file: "Import file", ed_record_mic: "Record mic",
+      ed_mic_disabled_title: "open via http://localhost for mic — see README",
+      ed_drop_hint: "or drop an audio file straight onto the pad",
+      ed_rec_stop: "Stop & keep", ed_rec_cancel: "Cancel", ed_rec_hint: "recording — auto-stops at 20s",
+      ed_play: "Play", ed_replace: "Replace", ed_remic: "Re-record", ed_clear: "Clear",
+      ed_trim_hint: "drag the waveform edges to trim — baked into the exported wav",
+      trim_readout: "start {a} ms · end {b} ms · len {c} ms · {hz} Hz",
+      catalog_title: "Catalog", catalog_close: "Close", catalog_url_ph: "catalog.json URL", catalog_refresh: "Refresh",
+      catalog_loading: "loading…", catalog_empty: "catalog is empty",
+      catalog_load_error: "couldn't load catalog: {msg}",
+      catalog_row_load: "Load", catalog_row_download: "Download",
+      publish_title: "Publish", publish_close: "Close",
+      publish_intro: "Publishes straight to the shared Catalog — no GitHub account, nothing to fill in but the kit name and who made it.",
+      publish_download: "Download .gp", submit_note_ph: "anything worth mentioning? (optional)",
+      submit_default: "Publish to Catalog", submit_publishing: "Publishing…",
+      submit_published: "Published ✓", submit_queued: "Queued ✓",
+      publish_computing: "computing checksum…",
+      publish_meta: "{mb} MB · sha256 {hash}…",
+      publish_over_limit: " · over the {limit} MB catalog limit — trim some samples",
+      publish_need_meta: "Add a kit name and an author at the top before publishing — the Catalog doesn't take unnamed kits.",
+      publish_need_sound: "This kit has no sounds yet — drop a sample on at least one pad before publishing.",
+      result_published: "It's live — already in the shared Catalog.",
+      result_queued: "You've hit the submission limit for the moment, so this one's queued for a quick manual check instead of publishing instantly. You can keep using it locally while you wait — it's still on your device as the .gp file above — it'll show up in the Catalog once reviewed.",
+      result_error: "Couldn't publish: {msg} — you can still use “Download .gp” above and share the file another way.",
+      toast_published: "published to the catalog", toast_queued: "queued for review",
+      guide_title: "How this works", guide_close: "Close", guide_prev: "Back", guide_next: "Next", guide_done: "Let's build",
+      guide0_h: "Sounds for Genius·Pad, built right here",
+      guide0_p: "Drop audio onto a 64-pad grid, trim it, name it, and export a <b>.gp</b> kit file — the Genius·Pad app loads it straight in. Nothing leaves your browser until <b>you</b> choose to publish it.",
+      guide1_h: "4 banks × 16 pads",
+      guide1_p: "Not required, but kits read best — and play best under your fingers — when each bank sticks to a role:",
+      bank_a_role: "Core rhythm", bank_b_role: "Bass & 808s", bank_c_role: "Melodic chops", bank_d_role: "FX & vocals",
+      guide2_h: "Build it, then share it", guide2_build: "Build", guide2_publish: "Publish", guide2_live: "Live",
+      guide2_p: "Click <b>Publish</b>, give it a name, hit <b>Publish to Catalog</b> — that's it. No GitHub account, nothing to upload by hand. It's live in the shared Catalog right away.",
+      guide3_h: "Or just grab one", guide3_catalog: "Catalog", guide3_loaddl: "Load / Download", guide3_play: "Play",
+      guide3_p: "Open <b>Catalog</b>, pick a kit — <b>Load</b> drops it straight into this editor, <b>Download</b> just saves the file. Every download is checked against its published checksum first. The Genius·Pad app has its own Catalog too, so kits published here show up there as well.",
+      toast_mic_https: "mic needs http(s) — see README", toast_mic_denied: "microphone access denied",
+      toast_recorded: "recorded {s}s", toast_too_short: "too short",
+      toast_exported_ok: "exported {fname} — self-check ok", toast_exported_fail: "exported, self-check FAILED — see status",
+      toast_cant_read_gp: "couldn't read that .gp",
+      toast_loaded_kit: "loaded “{name}” — {n} pads",
+      toast_downloading: "downloading “{name}”…",
+      toast_checksum_mismatch: "checksum mismatch — not loading", toast_download_failed: "download failed",
+      status_last_export: "last export {size} · {entries} entries · {filled}/64 pads filled",
+      status_near_limit: "— near the 100 MB limit", status_check_failed: "— {errors}",
+      err_cant_decode: "can't decode {filename}", err_no_kitjson: "no kit.json in that archive",
+      err_expected_banks: "expected 4 banks, got {n}", err_cant_unzip: "this browser can't unzip deflated archives",
+      kit_one: "{n} kit", kit_other: "{n} kits",
+      sound_one: "{n} sound loaded", sound_other: "{n} sounds loaded", sound_skipped: ", {n} skipped",
+    },
+    es: {
+      kit_name_ph: "nombre del kit", kit_author_ph: "autor",
+      status_default: "suelta audio en un pad · wav mp3 ogg m4a flac · los pads vacíos exportan silencio",
+      btn_guide: "Guía", btn_catalog: "Catálogo", btn_load: "Cargar", btn_publish: "Publicar", btn_export: "Exportar .gp",
+      ed_default_title: "PAD", ed_pick_pad: "elige un pad",
+      ed_import_file: "Importar archivo", ed_record_mic: "Grabar micro",
+      ed_mic_disabled_title: "abre vía http://localhost para usar el micro — ver README",
+      ed_drop_hint: "o suelta un archivo de audio directamente sobre el pad",
+      ed_rec_stop: "Detener y guardar", ed_rec_cancel: "Cancelar", ed_rec_hint: "grabando — se detiene solo a los 20s",
+      ed_play: "Reproducir", ed_replace: "Reemplazar", ed_remic: "Regrabar", ed_clear: "Borrar",
+      ed_trim_hint: "arrastra los bordes de la onda para recortar — se aplica al wav exportado",
+      trim_readout: "inicio {a} ms · fin {b} ms · dur {c} ms · {hz} Hz",
+      catalog_title: "Catálogo", catalog_close: "Cerrar", catalog_url_ph: "URL de catalog.json", catalog_refresh: "Actualizar",
+      catalog_loading: "cargando…", catalog_empty: "el catálogo está vacío",
+      catalog_load_error: "no se pudo cargar el catálogo: {msg}",
+      catalog_row_load: "Cargar", catalog_row_download: "Descargar",
+      publish_title: "Publicar", publish_close: "Cerrar",
+      publish_intro: "Publica directo al Catálogo compartido — sin cuenta de GitHub, solo el nombre del kit y su autor.",
+      publish_download: "Descargar .gp", submit_note_ph: "¿algo que mencionar? (opcional)",
+      submit_default: "Publicar en el Catálogo", submit_publishing: "Publicando…",
+      submit_published: "Publicado ✓", submit_queued: "En cola ✓",
+      publish_computing: "calculando checksum…",
+      publish_meta: "{mb} MB · sha256 {hash}…",
+      publish_over_limit: " · supera el límite de {limit} MB del catálogo — recorta algunas muestras",
+      publish_need_meta: "Escribe el nombre del kit y el autor arriba antes de publicar: el catálogo no acepta kits sin nombre.",
+      publish_need_sound: "Este kit aún no tiene sonidos: pon una muestra en al menos un pad antes de publicar.",
+      result_published: "Ya está en línea — en el Catálogo compartido.",
+      result_queued: "Has alcanzado el límite de envíos por ahora, así que este quedó en cola para revisión manual en vez de publicarse al instante. Puedes seguir usándolo localmente mientras esperas — sigue en tu dispositivo como el archivo .gp de arriba — aparecerá en el Catálogo tras revisarse.",
+      result_error: "No se pudo publicar: {msg} — puedes usar “Descargar .gp” arriba y compartir el archivo de otra forma.",
+      toast_published: "publicado en el catálogo", toast_queued: "en cola para revisión",
+      guide_title: "Cómo funciona", guide_close: "Cerrar", guide_prev: "Atrás", guide_next: "Siguiente", guide_done: "Empezar a crear",
+      guide0_h: "Sonidos para Genius·Pad, creados aquí mismo",
+      guide0_p: "Suelta audio en una cuadrícula de 64 pads, recórtalo, ponle nombre y exporta un archivo <b>.gp</b> — la app Genius·Pad lo carga directamente. Nada sale de tu navegador hasta que <b>tú</b> decidas publicarlo.",
+      guide1_h: "4 bancos × 16 pads",
+      guide1_p: "No es obligatorio, pero los kits se entienden mejor — y se tocan mejor — cuando cada banco tiene un rol fijo:",
+      bank_a_role: "Ritmo base", bank_b_role: "Bajo y 808s", bank_c_role: "Melódicos", bank_d_role: "FX y voces",
+      guide2_h: "Créalo, luego compártelo", guide2_build: "Crear", guide2_publish: "Publicar", guide2_live: "En línea",
+      guide2_p: "Toca <b>Publicar</b>, ponle un nombre, pulsa <b>Publicar en el Catálogo</b> — listo. Sin cuenta de GitHub, nada que subir a mano. Queda en línea en el Catálogo compartido de inmediato.",
+      guide3_h: "O simplemente consigue uno", guide3_catalog: "Catálogo", guide3_loaddl: "Cargar / Descargar", guide3_play: "Tocar",
+      guide3_p: "Abre <b>Catálogo</b>, elige un kit — <b>Cargar</b> lo pone directo en este editor, <b>Descargar</b> solo guarda el archivo. Cada descarga se verifica primero contra su checksum publicado. La app Genius·Pad tiene su propio Catálogo, así que los kits publicados aquí también aparecen ahí.",
+      toast_mic_https: "el micro necesita http(s) — ver README", toast_mic_denied: "acceso al micrófono denegado",
+      toast_recorded: "grabado {s}s", toast_too_short: "demasiado corto",
+      toast_exported_ok: "exportado {fname} — autochequeo ok", toast_exported_fail: "exportado, el autochequeo FALLÓ — ver estado",
+      toast_cant_read_gp: "no se pudo leer ese .gp",
+      toast_loaded_kit: "cargado “{name}” — {n} pads",
+      toast_downloading: "descargando “{name}”…",
+      toast_checksum_mismatch: "el checksum no coincide — no se carga", toast_download_failed: "la descarga falló",
+      status_last_export: "última exportación {size} · {entries} entradas · {filled}/64 pads con sonido",
+      status_near_limit: "— cerca del límite de 100 MB", status_check_failed: "— {errors}",
+      err_cant_decode: "no se pudo decodificar {filename}", err_no_kitjson: "ese archivo no tiene kit.json",
+      err_expected_banks: "se esperaban 4 bancos, llegaron {n}", err_cant_unzip: "este navegador no puede descomprimir archivos deflate",
+      kit_one: "{n} kit", kit_other: "{n} kits",
+      sound_one: "{n} sonido cargado", sound_other: "{n} sonidos cargados", sound_skipped: ", {n} omitidos",
+    },
+  };
+  // остальные 13 языков — тем же блоком, просто дальше по файлу, чтобы
+  // основной объект выше не расползался ещё в несколько раз
+  Object.assign(I18N, {
+    de: {
+      kit_name_ph: "Kit-Name", kit_author_ph: "Autor",
+      status_default: "Audio auf ein Pad ziehen · wav mp3 ogg m4a flac · leere Pads exportieren Stille",
+      btn_guide: "Anleitung", btn_catalog: "Katalog", btn_load: "Laden", btn_publish: "Veröffentlichen", btn_export: "Als .gp exportieren",
+      ed_default_title: "PAD", ed_pick_pad: "Pad wählen",
+      ed_import_file: "Datei importieren", ed_record_mic: "Mikro aufnehmen",
+      ed_mic_disabled_title: "für Mikro über http://localhost öffnen — siehe README",
+      ed_drop_hint: "oder eine Audiodatei direkt auf das Pad ziehen",
+      ed_rec_stop: "Stoppen & behalten", ed_rec_cancel: "Abbrechen", ed_rec_hint: "Aufnahme läuft — stoppt automatisch nach 20s",
+      ed_play: "Abspielen", ed_replace: "Ersetzen", ed_remic: "Neu aufnehmen", ed_clear: "Löschen",
+      ed_trim_hint: "Wellenform-Ränder ziehen zum Trimmen — wird in die exportierte wav gebacken",
+      trim_readout: "Start {a} ms · Ende {b} ms · Länge {c} ms · {hz} Hz",
+      catalog_title: "Katalog", catalog_close: "Schließen", catalog_url_ph: "catalog.json-URL", catalog_refresh: "Aktualisieren",
+      catalog_loading: "lädt…", catalog_empty: "Katalog ist leer",
+      catalog_load_error: "Katalog konnte nicht geladen werden: {msg}",
+      catalog_row_load: "Laden", catalog_row_download: "Herunterladen",
+      publish_title: "Veröffentlichen", publish_close: "Schließen",
+      publish_intro: "Veröffentlicht direkt im gemeinsamen Katalog — kein GitHub-Konto nötig, nur Kit-Name und Autor.",
+      publish_download: "Als .gp herunterladen", submit_note_ph: "etwas Erwähnenswertes? (optional)",
+      submit_default: "Im Katalog veröffentlichen", submit_publishing: "Wird veröffentlicht…",
+      submit_published: "Veröffentlicht ✓", submit_queued: "In Warteschlange ✓",
+      publish_computing: "Prüfsumme wird berechnet…",
+      publish_meta: "{mb} MB · sha256 {hash}…",
+      publish_over_limit: " · über dem {limit}-MB-Kataloglimit — einige Samples kürzen",
+      publish_need_meta: "Trag oben Kit-Name und Autor ein, bevor du veröffentlichst — ohne beides nimmt der Katalog das Kit nicht.",
+      publish_need_sound: "Dieses Kit hat noch keine Sounds — leg vor dem Veröffentlichen mindestens ein Sample auf ein Pad.",
+      result_published: "Ist live — bereits im gemeinsamen Katalog.",
+      result_queued: "Du hast das Einreichungslimit für den Moment erreicht, daher wartet dieser Kit auf eine kurze manuelle Prüfung statt sofort veröffentlicht zu werden. Du kannst ihn währenddessen lokal weiterverwenden — er liegt weiter als .gp-Datei oben auf deinem Gerät — und erscheint im Katalog, sobald er geprüft wurde.",
+      result_error: "Veröffentlichung fehlgeschlagen: {msg} — du kannst oben weiterhin “Als .gp herunterladen” nutzen und die Datei anders teilen.",
+      toast_published: "im Katalog veröffentlicht", toast_queued: "zur Prüfung eingereiht",
+      guide_title: "So funktioniert's", guide_close: "Schließen", guide_prev: "Zurück", guide_next: "Weiter", guide_done: "Los geht's",
+      guide0_h: "Sounds für Genius·Pad, direkt hier gebaut",
+      guide0_p: "Audio auf ein 64-Pad-Raster ziehen, trimmen, benennen und als <b>.gp</b>-Kit-Datei exportieren — die Genius·Pad-App lädt sie direkt. Nichts verlässt deinen Browser, bis <b>du</b> dich zur Veröffentlichung entscheidest.",
+      guide1_h: "4 Bänke × 16 Pads",
+      guide1_p: "Nicht zwingend, aber Kits lesen sich am besten — und spielen sich am besten — wenn jede Bank eine feste Rolle hat:",
+      bank_a_role: "Kern-Rhythmus", bank_b_role: "Bass & 808s", bank_c_role: "Melodische Chops", bank_d_role: "FX & Vocals",
+      guide2_h: "Bauen, dann teilen", guide2_build: "Bauen", guide2_publish: "Veröffentlichen", guide2_live: "Live",
+      guide2_p: "Auf <b>Veröffentlichen</b> tippen, einen Namen vergeben, <b>Im Katalog veröffentlichen</b> drücken — fertig. Kein GitHub-Konto, nichts manuell hochzuladen. Sofort live im gemeinsamen Katalog.",
+      guide3_h: "Oder einfach einen holen", guide3_catalog: "Katalog", guide3_loaddl: "Laden / Herunterladen", guide3_play: "Abspielen",
+      guide3_p: "“Katalog” öffnen, einen Kit wählen — <b>Laden</b> legt ihn direkt in diesen Editor, <b>Herunterladen</b> speichert nur die Datei. Jeder Download wird zuerst gegen seine veröffentlichte Prüfsumme geprüft. Die Genius·Pad-App hat ihren eigenen Katalog, hier veröffentlichte Kits erscheinen also auch dort.",
+      toast_mic_https: "Mikro braucht http(s) — siehe README", toast_mic_denied: "Mikrofonzugriff verweigert",
+      toast_recorded: "aufgenommen {s}s", toast_too_short: "zu kurz",
+      toast_exported_ok: "{fname} exportiert — Selbsttest ok", toast_exported_fail: "exportiert, Selbsttest FEHLGESCHLAGEN — siehe Status",
+      toast_cant_read_gp: "diese .gp konnte nicht gelesen werden",
+      toast_loaded_kit: "“{name}” geladen — {n} Pads",
+      toast_downloading: "“{name}” wird heruntergeladen…",
+      toast_checksum_mismatch: "Prüfsumme stimmt nicht — wird nicht geladen", toast_download_failed: "Download fehlgeschlagen",
+      status_last_export: "letzter Export {size} · {entries} Einträge · {filled}/64 Pads belegt",
+      status_near_limit: "— nahe am 100-MB-Limit", status_check_failed: "— {errors}",
+      err_cant_decode: "{filename} kann nicht dekodiert werden", err_no_kitjson: "keine kit.json in diesem Archiv",
+      err_expected_banks: "4 Bänke erwartet, {n} erhalten", err_cant_unzip: "dieser Browser kann deflate-Archive nicht entpacken",
+      kit_one: "{n} Kit", kit_other: "{n} Kits",
+      sound_one: "{n} Sound geladen", sound_other: "{n} Sounds geladen", sound_skipped: ", {n} übersprungen",
+    },
+    fr: {
+      kit_name_ph: "nom du kit", kit_author_ph: "auteur",
+      status_default: "dépose un son sur un pad · wav mp3 ogg m4a flac · pads vides = silence à l'export",
+      btn_guide: "Guide", btn_catalog: "Catalogue", btn_load: "Charger", btn_publish: "Publier", btn_export: "Exporter .gp",
+      ed_default_title: "PAD", ed_pick_pad: "choisis un pad",
+      ed_import_file: "Importer un fichier", ed_record_mic: "Enregistrer le micro",
+      ed_mic_disabled_title: "ouvre via http://localhost pour le micro — voir README",
+      ed_drop_hint: "ou dépose un fichier audio directement sur le pad",
+      ed_rec_stop: "Arrêter et garder", ed_rec_cancel: "Annuler", ed_rec_hint: "enregistrement — s'arrête seul à 20s",
+      ed_play: "Lire", ed_replace: "Remplacer", ed_remic: "Réenregistrer", ed_clear: "Effacer",
+      ed_trim_hint: "fais glisser les bords de l'onde pour rogner — c'est gravé dans le wav exporté",
+      trim_readout: "début {a} ms · fin {b} ms · durée {c} ms · {hz} Hz",
+      catalog_title: "Catalogue", catalog_close: "Fermer", catalog_url_ph: "URL de catalog.json", catalog_refresh: "Actualiser",
+      catalog_loading: "chargement…", catalog_empty: "le catalogue est vide",
+      catalog_load_error: "impossible de charger le catalogue : {msg}",
+      catalog_row_load: "Charger", catalog_row_download: "Télécharger",
+      publish_title: "Publier", publish_close: "Fermer",
+      publish_intro: "Publie directement dans le Catalogue partagé — pas de compte GitHub, juste le nom du kit et son auteur.",
+      publish_download: "Télécharger .gp", submit_note_ph: "quelque chose à mentionner ? (optionnel)",
+      submit_default: "Publier dans le Catalogue", submit_publishing: "Publication…",
+      submit_published: "Publié ✓", submit_queued: "En attente ✓",
+      publish_computing: "calcul du checksum…",
+      publish_meta: "{mb} Mo · sha256 {hash}…",
+      publish_over_limit: " · dépasse la limite du catalogue de {limit} Mo — réduis quelques échantillons",
+      publish_need_meta: "Renseigne le nom du kit et l'auteur en haut avant de publier — le catalogue refuse les kits sans nom.",
+      publish_need_sound: "Ce kit n'a encore aucun son — mets un échantillon sur au moins un pad avant de publier.",
+      result_published: "C'est en ligne — déjà dans le Catalogue partagé.",
+      result_queued: "Tu as atteint la limite d'envois pour l'instant, donc celui-ci attend une petite vérification manuelle au lieu d'être publié tout de suite. Tu peux continuer à l'utiliser localement en attendant — il reste sur ton appareil comme fichier .gp ci-dessus — il apparaîtra dans le Catalogue une fois vérifié.",
+      result_error: "Publication impossible : {msg} — tu peux toujours utiliser “Télécharger .gp” ci-dessus et partager le fichier autrement.",
+      toast_published: "publié dans le catalogue", toast_queued: "en attente de vérification",
+      guide_title: "Comment ça marche", guide_close: "Fermer", guide_prev: "Retour", guide_next: "Suivant", guide_done: "C'est parti",
+      guide0_h: "Des sons pour Genius·Pad, créés ici même",
+      guide0_p: "Dépose de l'audio sur une grille de 64 pads, rogne-le, nomme-le, et exporte un fichier de kit <b>.gp</b> — l'appli Genius·Pad le charge directement. Rien ne quitte ton navigateur tant que <b>toi</b> n'as pas choisi de le publier.",
+      guide1_h: "4 banques × 16 pads",
+      guide1_p: "Pas obligatoire, mais les kits se comprennent — et se jouent — mieux quand chaque banque garde un rôle fixe :",
+      bank_a_role: "Rythme de base", bank_b_role: "Basses & 808", bank_c_role: "Mélodies", bank_d_role: "FX & voix",
+      guide2_h: "Crée-le, puis partage-le", guide2_build: "Créer", guide2_publish: "Publier", guide2_live: "En ligne",
+      guide2_p: "Clique sur <b>Publier</b>, donne-lui un nom, appuie sur <b>Publier dans le Catalogue</b> — voilà. Pas de compte GitHub, rien à envoyer à la main. C'est en ligne dans le Catalogue partagé immédiatement.",
+      guide3_h: "Ou récupères-en un", guide3_catalog: "Catalogue", guide3_loaddl: "Charger / Télécharger", guide3_play: "Jouer",
+      guide3_p: "Ouvre <b>Catalogue</b>, choisis un kit — <b>Charger</b> le met directement dans cet éditeur, <b>Télécharger</b> enregistre juste le fichier. Chaque téléchargement est d'abord vérifié par rapport à son checksum publié. L'appli Genius·Pad a aussi son propre Catalogue, donc les kits publiés ici y apparaissent aussi.",
+      toast_mic_https: "le micro a besoin de http(s) — voir README", toast_mic_denied: "accès au microphone refusé",
+      toast_recorded: "enregistré {s}s", toast_too_short: "trop court",
+      toast_exported_ok: "{fname} exporté — autotest ok", toast_exported_fail: "exporté, l'autotest a ÉCHOUÉ — voir le statut",
+      toast_cant_read_gp: "impossible de lire ce .gp",
+      toast_loaded_kit: "“{name}” chargé — {n} pads",
+      toast_downloading: "téléchargement de “{name}”…",
+      toast_checksum_mismatch: "le checksum ne correspond pas — chargement annulé", toast_download_failed: "le téléchargement a échoué",
+      status_last_export: "dernier export {size} · {entries} entrées · {filled}/64 pads remplis",
+      status_near_limit: "— proche de la limite de 100 Mo", status_check_failed: "— {errors}",
+      err_cant_decode: "impossible de décoder {filename}", err_no_kitjson: "pas de kit.json dans cette archive",
+      err_expected_banks: "4 banques attendues, {n} reçues", err_cant_unzip: "ce navigateur ne peut pas décompresser les archives deflate",
+      kit_one: "{n} kit", kit_other: "{n} kits",
+      sound_one: "{n} son chargé", sound_other: "{n} sons chargés", sound_skipped: ", {n} ignorés",
+    },
+    "pt-BR": {
+      kit_name_ph: "nome do kit", kit_author_ph: "autor",
+      status_default: "solte áudio em um pad · wav mp3 ogg m4a flac · pads vazios exportam silêncio",
+      btn_guide: "Guia", btn_catalog: "Catálogo", btn_load: "Carregar", btn_publish: "Publicar", btn_export: "Exportar .gp",
+      ed_default_title: "PAD", ed_pick_pad: "escolha um pad",
+      ed_import_file: "Importar arquivo", ed_record_mic: "Gravar microfone",
+      ed_mic_disabled_title: "abra via http://localhost para usar o microfone — veja o README",
+      ed_drop_hint: "ou solte um arquivo de áudio direto no pad",
+      ed_rec_stop: "Parar e manter", ed_rec_cancel: "Cancelar", ed_rec_hint: "gravando — para sozinho aos 20s",
+      ed_play: "Tocar", ed_replace: "Substituir", ed_remic: "Regravar", ed_clear: "Limpar",
+      ed_trim_hint: "arraste as bordas da onda para cortar — isso é gravado no wav exportado",
+      trim_readout: "início {a} ms · fim {b} ms · duração {c} ms · {hz} Hz",
+      catalog_title: "Catálogo", catalog_close: "Fechar", catalog_url_ph: "URL do catalog.json", catalog_refresh: "Atualizar",
+      catalog_loading: "carregando…", catalog_empty: "o catálogo está vazio",
+      catalog_load_error: "não foi possível carregar o catálogo: {msg}",
+      catalog_row_load: "Carregar", catalog_row_download: "Baixar",
+      publish_title: "Publicar", publish_close: "Fechar",
+      publish_intro: "Publica direto no Catálogo compartilhado — sem conta do GitHub, só o nome do kit e o autor.",
+      publish_download: "Baixar .gp", submit_note_ph: "algo que valha mencionar? (opcional)",
+      submit_default: "Publicar no Catálogo", submit_publishing: "Publicando…",
+      submit_published: "Publicado ✓", submit_queued: "Na fila ✓",
+      publish_computing: "calculando o checksum…",
+      publish_meta: "{mb} MB · sha256 {hash}…",
+      publish_over_limit: " · acima do limite de {limit} MB do catálogo — corte algumas amostras",
+      publish_need_meta: "Preencha o nome do kit e o autor acima antes de publicar — o catálogo não aceita kits sem nome.",
+      publish_need_sound: "Este kit ainda não tem sons — coloque uma amostra em pelo menos um pad antes de publicar.",
+      result_published: "Já está no ar — no Catálogo compartilhado.",
+      result_queued: "Você atingiu o limite de envios por enquanto, então este ficou na fila para uma revisão manual rápida em vez de publicar na hora. Você pode continuar usando localmente enquanto espera — ele continua no seu aparelho como o arquivo .gp acima — e aparece no Catálogo assim que for revisado.",
+      result_error: "Não foi possível publicar: {msg} — você ainda pode usar “Baixar .gp” acima e compartilhar o arquivo de outro jeito.",
+      toast_published: "publicado no catálogo", toast_queued: "na fila para revisão",
+      guide_title: "Como funciona", guide_close: "Fechar", guide_prev: "Voltar", guide_next: "Próximo", guide_done: "Vamos criar",
+      guide0_h: "Sons para o Genius·Pad, criados aqui mesmo",
+      guide0_p: "Solte áudio numa grade de 64 pads, corte, nomeie e exporte um arquivo de kit <b>.gp</b> — o app Genius·Pad carrega direto. Nada sai do seu navegador até <b>você</b> decidir publicar.",
+      guide1_h: "4 bancos × 16 pads",
+      guide1_p: "Não é obrigatório, mas os kits fazem mais sentido — e tocam melhor — quando cada banco tem um papel fixo:",
+      bank_a_role: "Ritmo base", bank_b_role: "Graves e 808s", bank_c_role: "Melódicos", bank_d_role: "FX e vocais",
+      guide2_h: "Crie, depois compartilhe", guide2_build: "Criar", guide2_publish: "Publicar", guide2_live: "No ar",
+      guide2_p: "Toque em <b>Publicar</b>, dê um nome, toque em <b>Publicar no Catálogo</b> — pronto. Sem conta do GitHub, nada pra subir manualmente. Fica no ar no Catálogo compartilhado na hora.",
+      guide3_h: "Ou simplesmente pegue um", guide3_catalog: "Catálogo", guide3_loaddl: "Carregar / Baixar", guide3_play: "Tocar",
+      guide3_p: "Abra o <b>Catálogo</b>, escolha um kit — <b>Carregar</b> coloca direto neste editor, <b>Baixar</b> só salva o arquivo. Todo download é conferido primeiro contra o checksum publicado. O app Genius·Pad tem seu próprio Catálogo, então kits publicados aqui aparecem lá também.",
+      toast_mic_https: "o microfone precisa de http(s) — veja o README", toast_mic_denied: "acesso ao microfone negado",
+      toast_recorded: "gravado {s}s", toast_too_short: "curto demais",
+      toast_exported_ok: "{fname} exportado — autoteste ok", toast_exported_fail: "exportado, autoteste FALHOU — veja o status",
+      toast_cant_read_gp: "não foi possível ler esse .gp",
+      toast_loaded_kit: "“{name}” carregado — {n} pads",
+      toast_downloading: "baixando “{name}”…",
+      toast_checksum_mismatch: "checksum não confere — não vai carregar", toast_download_failed: "falha no download",
+      status_last_export: "última exportação {size} · {entries} itens · {filled}/64 pads preenchidos",
+      status_near_limit: "— perto do limite de 100 MB", status_check_failed: "— {errors}",
+      err_cant_decode: "não foi possível decodificar {filename}", err_no_kitjson: "esse arquivo não tem kit.json",
+      err_expected_banks: "esperava 4 bancos, veio {n}", err_cant_unzip: "esse navegador não consegue descompactar arquivos deflate",
+      kit_one: "{n} kit", kit_other: "{n} kits",
+      sound_one: "{n} som carregado", sound_other: "{n} sons carregados", sound_skipped: ", {n} ignorados",
+    },
+    it: {
+      kit_name_ph: "nome del kit", kit_author_ph: "autore",
+      status_default: "trascina un audio su un pad · wav mp3 ogg m4a flac · i pad vuoti esportano silenzio",
+      btn_guide: "Guida", btn_catalog: "Catalogo", btn_load: "Carica", btn_publish: "Pubblica", btn_export: "Esporta .gp",
+      ed_default_title: "PAD", ed_pick_pad: "scegli un pad",
+      ed_import_file: "Importa file", ed_record_mic: "Registra microfono",
+      ed_mic_disabled_title: "apri via http://localhost per il microfono — vedi il README",
+      ed_drop_hint: "oppure trascina un file audio direttamente sul pad",
+      ed_rec_stop: "Ferma e mantieni", ed_rec_cancel: "Annulla", ed_rec_hint: "registrazione — si ferma da sola a 20s",
+      ed_play: "Riproduci", ed_replace: "Sostituisci", ed_remic: "Registra di nuovo", ed_clear: "Cancella",
+      ed_trim_hint: "trascina i bordi della forma d'onda per tagliare — resta nel wav esportato",
+      trim_readout: "inizio {a} ms · fine {b} ms · durata {c} ms · {hz} Hz",
+      catalog_title: "Catalogo", catalog_close: "Chiudi", catalog_url_ph: "URL di catalog.json", catalog_refresh: "Aggiorna",
+      catalog_loading: "caricamento…", catalog_empty: "il catalogo è vuoto",
+      catalog_load_error: "impossibile caricare il catalogo: {msg}",
+      catalog_row_load: "Carica", catalog_row_download: "Scarica",
+      publish_title: "Pubblica", publish_close: "Chiudi",
+      publish_intro: "Pubblica direttamente nel Catalogo condiviso — nessun account GitHub, solo nome del kit e autore.",
+      publish_download: "Scarica .gp", submit_note_ph: "qualcosa da segnalare? (facoltativo)",
+      submit_default: "Pubblica nel Catalogo", submit_publishing: "Pubblicazione…",
+      submit_published: "Pubblicato ✓", submit_queued: "In coda ✓",
+      publish_computing: "calcolo checksum…",
+      publish_meta: "{mb} MB · sha256 {hash}…",
+      publish_over_limit: " · oltre il limite di {limit} MB del catalogo — accorcia qualche campione",
+      publish_need_meta: "Inserisci sopra nome del kit e autore prima di pubblicare — il catalogo non accetta kit senza nome.",
+      publish_need_sound: "Questo kit non ha ancora suoni — metti un campione su almeno un pad prima di pubblicare.",
+      result_published: "È online — già nel Catalogo condiviso.",
+      result_queued: "Hai raggiunto il limite di invii per ora, quindi questo è in coda per una rapida verifica manuale invece di essere pubblicato subito. Puoi continuare a usarlo in locale nel frattempo — resta sul tuo dispositivo come file .gp qui sopra — comparirà nel Catalogo una volta verificato.",
+      result_error: "Pubblicazione non riuscita: {msg} — puoi comunque usare “Scarica .gp” qui sopra e condividere il file in un altro modo.",
+      toast_published: "pubblicato nel catalogo", toast_queued: "in coda per la verifica",
+      guide_title: "Come funziona", guide_close: "Chiudi", guide_prev: "Indietro", guide_next: "Avanti", guide_done: "Iniziamo",
+      guide0_h: "Suoni per Genius·Pad, creati proprio qui",
+      guide0_p: "Trascina audio su una griglia di 64 pad, tagliala, dalle un nome ed esporta un file kit <b>.gp</b> — l'app Genius·Pad lo carica direttamente. Niente lascia il tuo browser finché non sei <b>tu</b> a decidere di pubblicarlo.",
+      guide1_h: "4 banchi × 16 pad",
+      guide1_p: "Non obbligatorio, ma i kit si capiscono — e si suonano — meglio quando ogni banco ha un ruolo fisso:",
+      bank_a_role: "Ritmo base", bank_b_role: "Bassi e 808", bank_c_role: "Melodici", bank_d_role: "FX e voci",
+      guide2_h: "Crealo, poi condividilo", guide2_build: "Crea", guide2_publish: "Pubblica", guide2_live: "Online",
+      guide2_p: "Tocca <b>Pubblica</b>, dagli un nome, premi <b>Pubblica nel Catalogo</b> — fatto. Nessun account GitHub, niente da caricare a mano. È online nel Catalogo condiviso all'istante.",
+      guide3_h: "Oppure prendine uno", guide3_catalog: "Catalogo", guide3_loaddl: "Carica / Scarica", guide3_play: "Riproduci",
+      guide3_p: "Apri <b>Catalogo</b>, scegli un kit — <b>Carica</b> lo mette subito in questo editor, <b>Scarica</b> salva solo il file. Ogni download viene prima verificato con il suo checksum pubblicato. Anche l'app Genius·Pad ha il suo Catalogo, quindi i kit pubblicati qui compaiono anche lì.",
+      toast_mic_https: "il microfono richiede http(s) — vedi il README", toast_mic_denied: "accesso al microfono negato",
+      toast_recorded: "registrato {s}s", toast_too_short: "troppo corto",
+      toast_exported_ok: "{fname} esportato — autotest ok", toast_exported_fail: "esportato, autotest FALLITO — vedi lo stato",
+      toast_cant_read_gp: "impossibile leggere questo .gp",
+      toast_loaded_kit: "“{name}” caricato — {n} pad",
+      toast_downloading: "scaricamento di “{name}”…",
+      toast_checksum_mismatch: "checksum non corrispondente — non caricato", toast_download_failed: "download non riuscito",
+      status_last_export: "ultimo export {size} · {entries} elementi · {filled}/64 pad riempiti",
+      status_near_limit: "— vicino al limite di 100 MB", status_check_failed: "— {errors}",
+      err_cant_decode: "impossibile decodificare {filename}", err_no_kitjson: "nessun kit.json in questo archivio",
+      err_expected_banks: "attesi 4 banchi, ricevuti {n}", err_cant_unzip: "questo browser non può decomprimere archivi deflate",
+      kit_one: "{n} kit", kit_other: "{n} kit",
+      sound_one: "{n} suono caricato", sound_other: "{n} suoni caricati", sound_skipped: ", {n} saltati",
+    },
+    tr: {
+      kit_name_ph: "kit adı", kit_author_ph: "yapımcı",
+      status_default: "bir pede ses sürükle · wav mp3 ogg m4a flac · boş pedler sessiz olarak dışa aktarılır",
+      btn_guide: "Rehber", btn_catalog: "Katalog", btn_load: "Yükle", btn_publish: "Yayınla", btn_export: ".gp olarak dışa aktar",
+      ed_default_title: "PED", ed_pick_pad: "bir ped seç",
+      ed_import_file: "Dosya içe aktar", ed_record_mic: "Mikrofonu kaydet",
+      ed_mic_disabled_title: "mikrofon için http://localhost üzerinden aç — README'ye bak",
+      ed_drop_hint: "veya bir ses dosyasını doğrudan pede sürükle",
+      ed_rec_stop: "Durdur ve sakla", ed_rec_cancel: "İptal", ed_rec_hint: "kaydediliyor — 20s'de kendiliğinden durur",
+      ed_play: "Çal", ed_replace: "Değiştir", ed_remic: "Yeniden kaydet", ed_clear: "Temizle",
+      ed_trim_hint: "kırpmak için dalga formunun kenarlarını sürükle — dışa aktarılan wav'a işlenir",
+      trim_readout: "başlangıç {a} ms · bitiş {b} ms · süre {c} ms · {hz} Hz",
+      catalog_title: "Katalog", catalog_close: "Kapat", catalog_url_ph: "catalog.json URL'si", catalog_refresh: "Yenile",
+      catalog_loading: "yükleniyor…", catalog_empty: "katalog boş",
+      catalog_load_error: "katalog yüklenemedi: {msg}",
+      catalog_row_load: "Yükle", catalog_row_download: "İndir",
+      publish_title: "Yayınla", publish_close: "Kapat",
+      publish_intro: "Doğrudan paylaşılan Kataloğa yayınlar — GitHub hesabı gerekmez, sadece kit adı ve yapımcı yeter.",
+      publish_download: ".gp indir", submit_note_ph: "belirtmek istediğin bir şey var mı? (isteğe bağlı)",
+      submit_default: "Kataloğa Yayınla", submit_publishing: "Yayınlanıyor…",
+      submit_published: "Yayınlandı ✓", submit_queued: "Sırada ✓",
+      publish_computing: "sağlama toplamı hesaplanıyor…",
+      publish_meta: "{mb} MB · sha256 {hash}…",
+      publish_over_limit: " · katalogun {limit} MB sınırını aşıyor — birkaç örneği kısalt",
+      publish_need_meta: "Yayınlamadan önce yukarıya kit adını ve yapımcıyı yaz — katalog adsız kit kabul etmiyor.",
+      publish_need_sound: "Bu kitte henüz ses yok — yayınlamadan önce en az bir pede örnek koy.",
+      result_published: "Artık yayında — paylaşılan Katalogda.",
+      result_queued: "Şu an için gönderim sınırına ulaştın, bu yüzden bu kit anında yayınlanmak yerine kısa bir manuel incelemeye alındı. Beklerken yerel olarak kullanmaya devam edebilirsin — yukarıdaki .gp dosyası olarak cihazında duruyor — incelendikten sonra Katalogda görünecek.",
+      result_error: "Yayınlanamadı: {msg} — yine de yukarıdaki “.gp indir”i kullanıp dosyayı başka bir şekilde paylaşabilirsin.",
+      toast_published: "kataloga yayınlandı", toast_queued: "incelemeye alındı",
+      guide_title: "Nasıl çalışır", guide_close: "Kapat", guide_prev: "Geri", guide_next: "İleri", guide_done: "Hadi başlayalım",
+      guide0_h: "Genius·Pad için sesler, tam burada yapılır",
+      guide0_p: "64 pedlik bir ızgaraya ses sürükle, kırp, isimlendir ve bir <b>.gp</b> kit dosyası olarak dışa aktar — Genius·Pad uygulaması onu doğrudan yükler. <b>Sen</b> yayınlamayı seçene kadar hiçbir şey tarayıcından çıkmaz.",
+      guide1_h: "4 banka × 16 ped",
+      guide1_p: "Zorunlu değil, ama her banka sabit bir role sahip olduğunda kitler daha iyi anlaşılır — ve parmaklarının altında daha iyi çalar:",
+      bank_a_role: "Temel ritim", bank_b_role: "Bas ve 808'ler", bank_c_role: "Melodik parçalar", bank_d_role: "FX ve vokaller",
+      guide2_h: "Yap, sonra paylaş", guide2_build: "Yap", guide2_publish: "Yayınla", guide2_live: "Yayında",
+      guide2_p: "<b>Yayınla</b>'ya dokun, bir isim ver, <b>Kataloğa Yayınla</b>'ya bas — bu kadar. GitHub hesabı yok, elle yüklenecek bir şey yok. Anında paylaşılan Katalogda yayında.",
+      guide3_h: "Ya da sadece birini al", guide3_catalog: "Katalog", guide3_loaddl: "Yükle / İndir", guide3_play: "Çal",
+      guide3_p: "<b>Katalog</b>'u aç, bir kit seç — <b>Yükle</b> onu doğrudan bu düzenleyiciye koyar, <b>İndir</b> sadece dosyayı kaydeder. Her indirme önce yayınlanmış sağlama toplamına göre kontrol edilir. Genius·Pad uygulamasının da kendi Kataloğu var, yani burada yayınlanan kitler orada da görünür.",
+      toast_mic_https: "mikrofon için http(s) gerekli — README'ye bak", toast_mic_denied: "mikrofon erişimi reddedildi",
+      toast_recorded: "{s}s kaydedildi", toast_too_short: "çok kısa",
+      toast_exported_ok: "{fname} dışa aktarıldı — öz kontrol ok", toast_exported_fail: "dışa aktarıldı, öz kontrol BAŞARISIZ — duruma bak",
+      toast_cant_read_gp: "bu .gp okunamadı",
+      toast_loaded_kit: "“{name}” yüklendi — {n} ped",
+      toast_downloading: "“{name}” indiriliyor…",
+      toast_checksum_mismatch: "sağlama toplamı uyuşmuyor — yüklenmiyor", toast_download_failed: "indirme başarısız",
+      status_last_export: "son dışa aktarım {size} · {entries} girdi · {filled}/64 ped dolu",
+      status_near_limit: "— 100 MB sınırına yakın", status_check_failed: "— {errors}",
+      err_cant_decode: "{filename} çözülemedi", err_no_kitjson: "bu arşivde kit.json yok",
+      err_expected_banks: "4 banka bekleniyordu, {n} geldi", err_cant_unzip: "bu tarayıcı deflate arşivlerini açamıyor",
+      kit_one: "{n} kit", kit_other: "{n} kit",
+      sound_one: "{n} ses yüklendi", sound_other: "{n} ses yüklendi", sound_skipped: ", {n} atlandı",
+    },
+    id: {
+      kit_name_ph: "nama kit", kit_author_ph: "pembuat",
+      status_default: "seret audio ke sebuah pad · wav mp3 ogg m4a flac · pad kosong diekspor sebagai hening",
+      btn_guide: "Panduan", btn_catalog: "Katalog", btn_load: "Muat", btn_publish: "Terbitkan", btn_export: "Ekspor .gp",
+      ed_default_title: "PAD", ed_pick_pad: "pilih pad",
+      ed_import_file: "Impor file", ed_record_mic: "Rekam mikrofon",
+      ed_mic_disabled_title: "buka lewat http://localhost untuk mikrofon — lihat README",
+      ed_drop_hint: "atau seret file audio langsung ke pad",
+      ed_rec_stop: "Hentikan & simpan", ed_rec_cancel: "Batal", ed_rec_hint: "merekam — berhenti otomatis di 20d",
+      ed_play: "Putar", ed_replace: "Ganti", ed_remic: "Rekam ulang", ed_clear: "Hapus",
+      ed_trim_hint: "seret tepi gelombang untuk memotong — akan tersimpan di wav yang diekspor",
+      trim_readout: "mulai {a} md · akhir {b} md · durasi {c} md · {hz} Hz",
+      catalog_title: "Katalog", catalog_close: "Tutup", catalog_url_ph: "URL catalog.json", catalog_refresh: "Segarkan",
+      catalog_loading: "memuat…", catalog_empty: "katalog kosong",
+      catalog_load_error: "katalog gagal dimuat: {msg}",
+      catalog_row_load: "Muat", catalog_row_download: "Unduh",
+      publish_title: "Terbitkan", publish_close: "Tutup",
+      publish_intro: "Langsung terbit ke Katalog bersama — tanpa akun GitHub, cukup isi nama kit dan pembuatnya.",
+      publish_download: "Unduh .gp", submit_note_ph: "ada yang perlu disebutkan? (opsional)",
+      submit_default: "Terbitkan ke Katalog", submit_publishing: "Menerbitkan…",
+      submit_published: "Diterbitkan ✓", submit_queued: "Dalam antrean ✓",
+      publish_computing: "menghitung checksum…",
+      publish_meta: "{mb} MB · sha256 {hash}…",
+      publish_over_limit: " · melebihi batas katalog {limit} MB — pangkas beberapa sampel",
+      publish_need_meta: "Isi nama kit dan pembuat di atas sebelum menerbitkan — katalog tidak menerima kit tanpa nama.",
+      publish_need_sound: "Kit ini belum punya suara — taruh sampel di setidaknya satu pad sebelum menerbitkan.",
+      result_published: "Sudah aktif — sudah ada di Katalog bersama.",
+      result_queued: "Kamu mencapai batas pengiriman untuk saat ini, jadi kit ini masuk antrean untuk pemeriksaan manual singkat, bukan langsung diterbitkan. Kamu tetap bisa memakainya secara lokal sambil menunggu — masih ada di perangkatmu sebagai file .gp di atas — dan akan muncul di Katalog setelah diperiksa.",
+      result_error: "Gagal menerbitkan: {msg} — kamu tetap bisa memakai “Unduh .gp” di atas dan membagikan filenya dengan cara lain.",
+      toast_published: "diterbitkan ke katalog", toast_queued: "masuk antrean pemeriksaan",
+      guide_title: "Cara kerjanya", guide_close: "Tutup", guide_prev: "Kembali", guide_next: "Lanjut", guide_done: "Ayo mulai",
+      guide0_h: "Suara untuk Genius·Pad, dibuat langsung di sini",
+      guide0_p: "Seret audio ke grid 64 pad, potong, beri nama, dan ekspor sebagai file kit <b>.gp</b> — aplikasi Genius·Pad langsung memuatnya. Tidak ada yang keluar dari browsermu sampai <b>kamu</b> memilih untuk menerbitkannya.",
+      guide1_h: "4 bank × 16 pad",
+      guide1_p: "Tidak wajib, tapi kit lebih mudah dipahami — dan lebih enak dimainkan — kalau tiap bank punya peran tetap:",
+      bank_a_role: "Ritme inti", bank_b_role: "Bass & 808", bank_c_role: "Potongan melodi", bank_d_role: "FX & vokal",
+      guide2_h: "Buat, lalu bagikan", guide2_build: "Buat", guide2_publish: "Terbitkan", guide2_live: "Aktif",
+      guide2_p: "Ketuk <b>Terbitkan</b>, beri nama, tekan <b>Terbitkan ke Katalog</b> — selesai. Tanpa akun GitHub, tanpa unggah manual. Langsung aktif di Katalog bersama.",
+      guide3_h: "Atau tinggal ambil satu", guide3_catalog: "Katalog", guide3_loaddl: "Muat / Unduh", guide3_play: "Mainkan",
+      guide3_p: "Buka <b>Katalog</b>, pilih kit — <b>Muat</b> langsung memasukkannya ke editor ini, <b>Unduh</b> hanya menyimpan filenya. Setiap unduhan diperiksa dulu terhadap checksum yang diterbitkan. Aplikasi Genius·Pad juga punya Kataloknya sendiri, jadi kit yang diterbitkan di sini juga muncul di sana.",
+      toast_mic_https: "mikrofon perlu http(s) — lihat README", toast_mic_denied: "akses mikrofon ditolak",
+      toast_recorded: "terekam {s}d", toast_too_short: "terlalu pendek",
+      toast_exported_ok: "{fname} diekspor — pemeriksaan mandiri ok", toast_exported_fail: "diekspor, pemeriksaan mandiri GAGAL — lihat status",
+      toast_cant_read_gp: "tidak bisa membaca .gp itu",
+      toast_loaded_kit: "“{name}” dimuat — {n} pad",
+      toast_downloading: "mengunduh “{name}”…",
+      toast_checksum_mismatch: "checksum tidak cocok — tidak dimuat", toast_download_failed: "unduhan gagal",
+      status_last_export: "ekspor terakhir {size} · {entries} entri · {filled}/64 pad terisi",
+      status_near_limit: "— mendekati batas 100 MB", status_check_failed: "— {errors}",
+      err_cant_decode: "tidak bisa mendekode {filename}", err_no_kitjson: "tidak ada kit.json di arsip itu",
+      err_expected_banks: "diharapkan 4 bank, dapat {n}", err_cant_unzip: "browser ini tidak bisa mengekstrak arsip deflate",
+      kit_one: "{n} kit", kit_other: "{n} kit",
+      sound_one: "{n} suara dimuat", sound_other: "{n} suara dimuat", sound_skipped: ", {n} dilewati",
+    },
+    ru: {
+      kit_name_ph: "имя кита", kit_author_ph: "автор",
+      status_default: "перетащи звук на пэд · wav mp3 ogg m4a flac · пустые пэды экспортируются тишиной",
+      btn_guide: "Гайд", btn_catalog: "Каталог", btn_load: "Загрузить", btn_publish: "Опубликовать", btn_export: "Экспорт .gp",
+      ed_default_title: "ПЭД", ed_pick_pad: "выбери пэд",
+      ed_import_file: "Импорт файла", ed_record_mic: "Записать с микро",
+      ed_mic_disabled_title: "открой через http://localhost для микрофона — см. README",
+      ed_drop_hint: "или перетащи аудиофайл прямо на пэд",
+      ed_rec_stop: "Стоп и сохранить", ed_rec_cancel: "Отмена", ed_rec_hint: "идёт запись — остановится сама на 20с",
+      ed_play: "Играть", ed_replace: "Заменить", ed_remic: "Перезаписать", ed_clear: "Очистить",
+      ed_trim_hint: "тяни края волны, чтобы обрезать — это запекается в экспортируемый wav",
+      trim_readout: "начало {a} мс · конец {b} мс · длина {c} мс · {hz} Гц",
+      catalog_title: "Каталог", catalog_close: "Закрыть", catalog_url_ph: "URL файла catalog.json", catalog_refresh: "Обновить",
+      catalog_loading: "загрузка…", catalog_empty: "каталог пуст",
+      catalog_load_error: "не удалось загрузить каталог: {msg}",
+      catalog_row_load: "Загрузить", catalog_row_download: "Скачать",
+      publish_title: "Публикация", publish_close: "Закрыть",
+      publish_intro: "Публикует прямо в общий Каталог — без аккаунта GitHub, нужны только имя кита и автор.",
+      publish_download: "Скачать .gp", submit_note_ph: "есть что упомянуть? (необязательно)",
+      submit_default: "Опубликовать в Каталоге", submit_publishing: "Публикация…",
+      submit_published: "Опубликовано ✓", submit_queued: "В очереди ✓",
+      publish_computing: "считаю контрольную сумму…",
+      publish_meta: "{mb} МБ · sha256 {hash}…",
+      publish_over_limit: " · превышен лимит каталога в {limit} МБ — обрежь несколько сэмплов",
+      publish_need_meta: "Впиши сверху имя кита и автора — без них в каталог не уходит.",
+      publish_need_sound: "В ките нет ни одного звука — положи сэмпл хотя бы на один пэд.",
+      result_published: "Уже в сети — уже в общем Каталоге.",
+      result_queued: "На данный момент лимит заявок исчерпан, так что этот кит поставлен в очередь на короткую ручную проверку вместо мгновенной публикации. Пока можно продолжать пользоваться им локально — файл .gp остаётся на твоём устройстве, как выше — а после проверки он появится в Каталоге.",
+      result_error: "Не удалось опубликовать: {msg} — можно всё равно скачать через «Скачать .gp» выше и поделиться файлом иначе.",
+      toast_published: "опубликовано в каталоге", toast_queued: "поставлено в очередь на проверку",
+      guide_title: "Как это работает", guide_close: "Закрыть", guide_prev: "Назад", guide_next: "Далее", guide_done: "Погнали",
+      guide0_h: "Звуки для Genius·Pad, собранные прямо здесь",
+      guide0_p: "Перетащи звуки на сетку из 64 пэдов, обрежь, назови и экспортируй файл кита <b>.gp</b> — приложение Genius·Pad загрузит его сразу. Ничего не покидает браузер, пока <b>ты сам</b> не решишь опубликовать.",
+      guide1_h: "4 банка × 16 пэдов",
+      guide1_p: "Необязательно, но кит понятнее — и удобнее играется — когда за каждым банком закреплена своя роль:",
+      bank_a_role: "Основной ритм", bank_b_role: "Бас и 808", bank_c_role: "Мелодические отрезки", bank_d_role: "FX и вокал",
+      guide2_h: "Собери и поделись", guide2_build: "Собрать", guide2_publish: "Опубликовать", guide2_live: "В сети",
+      guide2_p: "Нажми <b>Опубликовать</b>, дай имя, нажми <b>Опубликовать в Каталоге</b> — готово. Без аккаунта GitHub, без ручной загрузки. Кит сразу появляется в общем Каталоге.",
+      guide3_h: "Или просто возьми готовый", guide3_catalog: "Каталог", guide3_loaddl: "Загрузить / Скачать", guide3_play: "Играть",
+      guide3_p: "Открой <b>Каталог</b>, выбери кит — <b>Загрузить</b> сразу подставит его в этот редактор, <b>Скачать</b> просто сохранит файл. Каждое скачивание сверяется с опубликованной контрольной суммой. У приложения Genius·Pad свой Каталог, так что опубликованные здесь киты появятся и там.",
+      toast_mic_https: "микрофону нужен http(s) — см. README", toast_mic_denied: "доступ к микрофону запрещён",
+      toast_recorded: "записано {s}с", toast_too_short: "слишком коротко",
+      toast_exported_ok: "экспортировано {fname} — самопроверка ок", toast_exported_fail: "экспортировано, самопроверка ПРОВАЛЕНА — см. статус",
+      toast_cant_read_gp: "не удалось прочитать этот .gp",
+      toast_loaded_kit: "загружено «{name}» — пэдов: {n}",
+      toast_downloading: "скачивание «{name}»…",
+      toast_checksum_mismatch: "контрольная сумма не совпала — не загружаю", toast_download_failed: "не удалось скачать",
+      status_last_export: "последний экспорт {size} · записей: {entries} · заполнено {filled}/64 пэдов",
+      status_near_limit: "— близко к лимиту 100 МБ", status_check_failed: "— {errors}",
+      err_cant_decode: "не удалось декодировать {filename}", err_no_kitjson: "в архиве нет kit.json",
+      err_expected_banks: "ожидалось 4 банка, получено {n}", err_cant_unzip: "этот браузер не умеет распаковывать deflate-архивы",
+      kit_one: "{n} кит", kit_few: "{n} кита", kit_many: "{n} китов",
+      sound_one: "{n} звук загружен", sound_few: "{n} звука загружено", sound_many: "{n} звуков загружено", sound_skipped: ", {n} пропущено",
+    },
+    uk: {
+      kit_name_ph: "назва кіта", kit_author_ph: "автор",
+      status_default: "перетягни звук на пед · wav mp3 ogg m4a flac · порожні педи експортуються тишею",
+      btn_guide: "Гайд", btn_catalog: "Каталог", btn_load: "Завантажити", btn_publish: "Опублікувати", btn_export: "Експорт .gp",
+      ed_default_title: "ПЕД", ed_pick_pad: "обери пед",
+      ed_import_file: "Імпорт файлу", ed_record_mic: "Записати з мікрофона",
+      ed_mic_disabled_title: "відкрий через http://localhost для мікрофона — див. README",
+      ed_drop_hint: "або перетягни аудіофайл прямо на пед",
+      ed_rec_stop: "Стоп і зберегти", ed_rec_cancel: "Скасувати", ed_rec_hint: "триває запис — зупиниться сам на 20с",
+      ed_play: "Грати", ed_replace: "Замінити", ed_remic: "Перезаписати", ed_clear: "Очистити",
+      ed_trim_hint: "тягни краї хвилі, щоб обрізати — це запікається в експортований wav",
+      trim_readout: "початок {a} мс · кінець {b} мс · довжина {c} мс · {hz} Гц",
+      catalog_title: "Каталог", catalog_close: "Закрити", catalog_url_ph: "URL файлу catalog.json", catalog_refresh: "Оновити",
+      catalog_loading: "завантаження…", catalog_empty: "каталог порожній",
+      catalog_load_error: "не вдалося завантажити каталог: {msg}",
+      catalog_row_load: "Завантажити", catalog_row_download: "Скачати",
+      publish_title: "Публікація", publish_close: "Закрити",
+      publish_intro: "Публікує прямо в спільний Каталог — без акаунта GitHub, потрібні лише назва кіта та автор.",
+      publish_download: "Скачати .gp", submit_note_ph: "є що згадати? (необов'язково)",
+      submit_default: "Опублікувати в Каталозі", submit_publishing: "Публікація…",
+      submit_published: "Опубліковано ✓", submit_queued: "У черзі ✓",
+      publish_computing: "рахую контрольну суму…",
+      publish_meta: "{mb} МБ · sha256 {hash}…",
+      publish_over_limit: " · перевищено ліміт каталогу в {limit} МБ — обріж кілька семплів",
+      publish_need_meta: "Впиши вгорі назву кіта та автора — без них до каталогу не піде.",
+      publish_need_sound: "У кіті немає жодного звуку — поклади семпл хоча б на один пед.",
+      result_published: "Вже в мережі — вже у спільному Каталозі.",
+      result_queued: "На зараз ліміт заявок вичерпано, тож цей кіт поставлено в чергу на коротку ручну перевірку замість миттєвої публікації. Поки можна продовжувати користуватись ним локально — файл .gp лишається на твоєму пристрої, як вище — а після перевірки він з'явиться в Каталозі.",
+      result_error: "Не вдалося опублікувати: {msg} — можна все одно скачати через «Скачати .gp» вище і поділитися файлом інакше.",
+      toast_published: "опубліковано в каталозі", toast_queued: "поставлено в чергу на перевірку",
+      guide_title: "Як це працює", guide_close: "Закрити", guide_prev: "Назад", guide_next: "Далі", guide_done: "Погнали",
+      guide0_h: "Звуки для Genius·Pad, зібрані прямо тут",
+      guide0_p: "Перетягни звуки на сітку з 64 педів, обріж, назви і експортуй файл кіта <b>.gp</b> — застосунок Genius·Pad завантажить його одразу. Нічого не покидає браузер, поки <b>ти сам</b> не вирішиш опублікувати.",
+      guide1_h: "4 банки × 16 педів",
+      guide1_p: "Необов'язково, але кіт зрозуміліший — і зручніше грається — коли за кожним банком закріплена своя роль:",
+      bank_a_role: "Основний ритм", bank_b_role: "Бас і 808", bank_c_role: "Мелодичні відрізки", bank_d_role: "FX і вокал",
+      guide2_h: "Збери і поділись", guide2_build: "Зібрати", guide2_publish: "Опублікувати", guide2_live: "У мережі",
+      guide2_p: "Натисни <b>Опублікувати</b>, дай ім'я, натисни <b>Опублікувати в Каталозі</b> — готово. Без акаунта GitHub, без ручного завантаження. Кіт одразу з'являється у спільному Каталозі.",
+      guide3_h: "Або просто візьми готовий", guide3_catalog: "Каталог", guide3_loaddl: "Завантажити / Скачати", guide3_play: "Грати",
+      guide3_p: "Відкрий <b>Каталог</b>, обери кіт — <b>Завантажити</b> одразу підставить його в цей редактор, <b>Скачати</b> просто збереже файл. Кожне завантаження звіряється з опублікованою контрольною сумою. У застосунку Genius·Pad свій Каталог, тож опубліковані тут кіти з'являться і там.",
+      toast_mic_https: "мікрофону потрібен http(s) — див. README", toast_mic_denied: "доступ до мікрофона заборонено",
+      toast_recorded: "записано {s}с", toast_too_short: "закоротко",
+      toast_exported_ok: "експортовано {fname} — самоперевірка ок", toast_exported_fail: "експортовано, самоперевірка ПРОВАЛЕНА — див. статус",
+      toast_cant_read_gp: "не вдалося прочитати цей .gp",
+      toast_loaded_kit: "завантажено «{name}» — педів: {n}",
+      toast_downloading: "завантаження «{name}»…",
+      toast_checksum_mismatch: "контрольна сума не збіглася — не завантажую", toast_download_failed: "не вдалося скачати",
+      status_last_export: "останній експорт {size} · записів: {entries} · заповнено {filled}/64 педів",
+      status_near_limit: "— близько до ліміту 100 МБ", status_check_failed: "— {errors}",
+      err_cant_decode: "не вдалося декодувати {filename}", err_no_kitjson: "в архіві немає kit.json",
+      err_expected_banks: "очікувалося 4 банки, отримано {n}", err_cant_unzip: "цей браузер не вміє розпаковувати deflate-архіви",
+      kit_one: "{n} кіт", kit_few: "{n} кіти", kit_many: "{n} кітів",
+      sound_one: "{n} звук завантажено", sound_few: "{n} звуки завантажено", sound_many: "{n} звуків завантажено", sound_skipped: ", {n} пропущено",
+    },
+    "zh-CN": {
+      kit_name_ph: "套件名称", kit_author_ph: "作者",
+      status_default: "把音频拖到打击垫上 · wav mp3 ogg m4a flac · 空垫导出为静音",
+      btn_guide: "指南", btn_catalog: "目录", btn_load: "加载", btn_publish: "发布", btn_export: "导出 .gp",
+      ed_default_title: "垫", ed_pick_pad: "选择一个打击垫",
+      ed_import_file: "导入文件", ed_record_mic: "录制麦克风",
+      ed_mic_disabled_title: "通过 http://localhost 打开以使用麦克风——见 README",
+      ed_drop_hint: "或直接把音频文件拖到打击垫上",
+      ed_rec_stop: "停止并保留", ed_rec_cancel: "取消", ed_rec_hint: "录制中——20 秒后自动停止",
+      ed_play: "播放", ed_replace: "替换", ed_remic: "重新录制", ed_clear: "清除",
+      ed_trim_hint: "拖动波形边缘进行裁剪——会烧录进导出的 wav 中",
+      trim_readout: "起点 {a} 毫秒 · 终点 {b} 毫秒 · 时长 {c} 毫秒 · {hz} Hz",
+      catalog_title: "目录", catalog_close: "关闭", catalog_url_ph: "catalog.json 地址", catalog_refresh: "刷新",
+      catalog_loading: "加载中…", catalog_empty: "目录为空",
+      catalog_load_error: "无法加载目录：{msg}",
+      catalog_row_load: "加载", catalog_row_download: "下载",
+      publish_title: "发布", publish_close: "关闭",
+      publish_intro: "直接发布到共享目录——无需 GitHub 账号，只需填写套件名称和作者。",
+      publish_download: "下载 .gp", submit_note_ph: "有什么想说的吗？（可选）",
+      submit_default: "发布到目录", submit_publishing: "发布中…",
+      submit_published: "已发布 ✓", submit_queued: "已排队 ✓",
+      publish_computing: "正在计算校验和…",
+      publish_meta: "{mb} MB · sha256 {hash}…",
+      publish_over_limit: " · 超出目录 {limit} MB 的限制——请裁剪一些采样",
+      publish_need_meta: "发布前请在上方填写套件名称和作者——目录不收没有署名的套件。",
+      publish_need_sound: "这个套件还没有声音——发布前至少给一个打击垫放上采样。",
+      result_published: "已上线——已在共享目录中。",
+      result_queued: "你目前已达到提交上限，因此这个套件被排队等待人工快速审核，而不是立即发布。等待期间你仍可在本地继续使用它——它仍以上面的 .gp 文件形式保存在你的设备上——审核通过后会出现在目录中。",
+      result_error: "发布失败：{msg}——你仍然可以使用上面的“下载 .gp”，通过其他方式分享文件。",
+      toast_published: "已发布到目录", toast_queued: "已排队等待审核",
+      guide_title: "使用说明", guide_close: "关闭", guide_prev: "上一步", guide_next: "下一步", guide_done: "开始制作",
+      guide0_h: "为 Genius·Pad 制作音色，就在这里完成",
+      guide0_p: "把音频拖到 64 个打击垫的网格里，裁剪、命名，然后导出 <b>.gp</b> 套件文件——Genius·Pad 应用可以直接加载它。在<b>你</b>选择发布之前，任何内容都不会离开你的浏览器。",
+      guide1_h: "4 个音色组 × 16 个打击垫",
+      guide1_p: "不是必须的，但如果每个音色组都固定一个角色，套件会更容易理解，弹奏手感也更好：",
+      bank_a_role: "核心节奏", bank_b_role: "低音与 808", bank_c_role: "旋律片段", bank_d_role: "特效与人声",
+      guide2_h: "做好，然后分享", guide2_build: "制作", guide2_publish: "发布", guide2_live: "已上线",
+      guide2_p: "点击<b>发布</b>，起个名字，点击<b>发布到目录</b>——就这么简单。不需要 GitHub 账号，不需要手动上传任何东西。立即在共享目录中上线。",
+      guide3_h: "或者直接取用一个", guide3_catalog: "目录", guide3_loaddl: "加载 / 下载", guide3_play: "播放",
+      guide3_p: "打开<b>目录</b>，挑一个套件——<b>加载</b>会把它直接放进这个编辑器，<b>下载</b>只是保存文件。每次下载都会先与其发布时的校验和进行核对。Genius·Pad 应用也有自己的目录，所以这里发布的套件也会显示在那边。",
+      toast_mic_https: "麦克风需要 http(s)——见 README", toast_mic_denied: "麦克风访问被拒绝",
+      toast_recorded: "已录制 {s} 秒", toast_too_short: "太短了",
+      toast_exported_ok: "已导出 {fname}——自检通过", toast_exported_fail: "已导出，但自检失败——请查看状态",
+      toast_cant_read_gp: "无法读取该 .gp 文件",
+      toast_loaded_kit: "已加载“{name}”——{n} 个打击垫",
+      toast_downloading: "正在下载“{name}”…",
+      toast_checksum_mismatch: "校验和不匹配——未加载", toast_download_failed: "下载失败",
+      status_last_export: "上次导出 {size} · {entries} 个条目 · 已填充 {filled}/64 个打击垫",
+      status_near_limit: "——接近 100 MB 限制", status_check_failed: "——{errors}",
+      err_cant_decode: "无法解码 {filename}", err_no_kitjson: "该压缩包中没有 kit.json",
+      err_expected_banks: "应为 4 个音色组，实际收到 {n} 个", err_cant_unzip: "此浏览器无法解压 deflate 压缩包",
+      kit_one: "{n} 个套件", kit_other: "{n} 个套件",
+      sound_one: "已加载 {n} 个音色", sound_other: "已加载 {n} 个音色", sound_skipped: "，跳过 {n} 个",
+    },
+    ja: {
+      kit_name_ph: "キット名", kit_author_ph: "作者",
+      status_default: "パッドに音声をドロップ · wav mp3 ogg m4a flac · 空のパッドは無音として書き出されます",
+      btn_guide: "ガイド", btn_catalog: "カタログ", btn_load: "読み込み", btn_publish: "公開", btn_export: ".gp を書き出し",
+      ed_default_title: "パッド", ed_pick_pad: "パッドを選んでください",
+      ed_import_file: "ファイルを読み込む", ed_record_mic: "マイクを録音",
+      ed_mic_disabled_title: "マイクを使うには http://localhost 経由で開いてください — README 参照",
+      ed_drop_hint: "またはパッドに音声ファイルを直接ドロップ",
+      ed_rec_stop: "停止して保存", ed_rec_cancel: "キャンセル", ed_rec_hint: "録音中 — 20秒で自動停止します",
+      ed_play: "再生", ed_replace: "差し替え", ed_remic: "録り直し", ed_clear: "クリア",
+      ed_trim_hint: "波形の端をドラッグしてトリム — 書き出すwavに反映されます",
+      trim_readout: "開始 {a} ms · 終了 {b} ms · 長さ {c} ms · {hz} Hz",
+      catalog_title: "カタログ", catalog_close: "閉じる", catalog_url_ph: "catalog.json のURL", catalog_refresh: "更新",
+      catalog_loading: "読み込み中…", catalog_empty: "カタログは空です",
+      catalog_load_error: "カタログを読み込めませんでした: {msg}",
+      catalog_row_load: "読み込み", catalog_row_download: "ダウンロード",
+      publish_title: "公開", publish_close: "閉じる",
+      publish_intro: "共有カタログに直接公開します — GitHubアカウント不要、キット名と作者を入れるだけです。",
+      publish_download: ".gp をダウンロード", submit_note_ph: "何か伝えたいこと？（任意）",
+      submit_default: "カタログに公開", submit_publishing: "公開中…",
+      submit_published: "公開済み ✓", submit_queued: "審査待ち ✓",
+      publish_computing: "チェックサムを計算中…",
+      publish_meta: "{mb} MB · sha256 {hash}…",
+      publish_over_limit: " · カタログの上限 {limit} MB を超えています — サンプルを整理してください",
+      publish_need_meta: "公開する前に上部のキット名と作者を入力してください — 名前のないキットはカタログに登録できません。",
+      publish_need_sound: "このキットにはまだ音がありません — 公開する前に少なくとも1つのパッドにサンプルを置いてください。",
+      result_published: "公開されました — 共有カタログにすでに反映されています。",
+      result_queued: "現在の投稿上限に達したため、即時公開ではなく簡単な手動確認の待ち行列に入りました。待っている間もローカルでそのまま使い続けられます — 上記の.gpファイルとして端末に残っています — 確認が済み次第カタログに表示されます。",
+      result_error: "公開できませんでした: {msg} — 上の「.gpをダウンロード」を使って別の方法で共有することもできます。",
+      toast_published: "カタログに公開しました", toast_queued: "審査待ちになりました",
+      guide_title: "使い方", guide_close: "閉じる", guide_prev: "戻る", guide_next: "次へ", guide_done: "はじめる",
+      guide0_h: "Genius·Pad用のサウンドを、ここでそのまま作成",
+      guide0_p: "64パッドのグリッドに音声をドロップし、トリムして名前を付け、<b>.gp</b>キットファイルとして書き出します — Genius·Padアプリがそのまま読み込みます。<b>あなたが</b>公開を選ぶまで、何もブラウザの外へは出ません。",
+      guide1_h: "4バンク × 16パッド",
+      guide1_p: "必須ではありませんが、各バンクに役割を固定すると、キットが分かりやすくなり演奏もしやすくなります：",
+      bank_a_role: "基本リズム", bank_b_role: "ベース・808", bank_c_role: "メロディックなフレーズ", bank_d_role: "FX・ボーカル",
+      guide2_h: "作って、共有する", guide2_build: "作成", guide2_publish: "公開", guide2_live: "公開中",
+      guide2_p: "<b>公開</b>をタップして名前を付け、<b>カタログに公開</b>を押す — それだけです。GitHubアカウントも手動アップロードも不要。すぐに共有カタログに反映されます。",
+      guide3_h: "または既存のものを使う", guide3_catalog: "カタログ", guide3_loaddl: "読み込み / ダウンロード", guide3_play: "再生",
+      guide3_p: "<b>カタログ</b>を開いてキットを選ぶと — <b>読み込み</b>でこのエディタに直接読み込まれ、<b>ダウンロード</b>はファイルを保存するだけです。ダウンロードは事前に公開済みのチェックサムと照合されます。Genius·Padアプリにも独自のカタログがあるので、ここで公開したキットはそちらにも表示されます。",
+      toast_mic_https: "マイクにはhttp(s)が必要です — README参照", toast_mic_denied: "マイクへのアクセスが拒否されました",
+      toast_recorded: "{s}秒録音しました", toast_too_short: "短すぎます",
+      toast_exported_ok: "{fname} を書き出しました — 自己チェックOK", toast_exported_fail: "書き出しましたが自己チェックに失敗しました — ステータスを確認してください",
+      toast_cant_read_gp: "この.gpを読み込めませんでした",
+      toast_loaded_kit: "「{name}」を読み込みました — {n}パッド",
+      toast_downloading: "「{name}」をダウンロード中…",
+      toast_checksum_mismatch: "チェックサムが一致しません — 読み込みません", toast_download_failed: "ダウンロードに失敗しました",
+      status_last_export: "前回の書き出し {size} · {entries}件 · {filled}/64パッドが埋まっています",
+      status_near_limit: "— 100MBの上限に近づいています", status_check_failed: "— {errors}",
+      err_cant_decode: "{filename} をデコードできません", err_no_kitjson: "そのアーカイブにkit.jsonがありません",
+      err_expected_banks: "4バンクを想定していましたが{n}個でした", err_cant_unzip: "このブラウザはdeflate形式のアーカイブを解凍できません",
+      kit_one: "{n} キット", kit_other: "{n} キット",
+      sound_one: "{n}個のサウンドを読み込みました", sound_other: "{n}個のサウンドを読み込みました", sound_skipped: "、{n}個をスキップ",
+    },
+    ko: {
+      kit_name_ph: "킷 이름", kit_author_ph: "제작자",
+      status_default: "패드에 오디오를 드롭 · wav mp3 ogg m4a flac · 빈 패드는 무음으로 내보내집니다",
+      btn_guide: "가이드", btn_catalog: "카탈로그", btn_load: "불러오기", btn_publish: "게시", btn_export: ".gp로 내보내기",
+      ed_default_title: "패드", ed_pick_pad: "패드를 선택하세요",
+      ed_import_file: "파일 가져오기", ed_record_mic: "마이크 녹음",
+      ed_mic_disabled_title: "마이크를 쓰려면 http://localhost 로 열어주세요 — README 참고",
+      ed_drop_hint: "또는 오디오 파일을 패드에 바로 드롭하세요",
+      ed_rec_stop: "정지하고 저장", ed_rec_cancel: "취소", ed_rec_hint: "녹음 중 — 20초에 자동으로 정지됩니다",
+      ed_play: "재생", ed_replace: "교체", ed_remic: "다시 녹음", ed_clear: "지우기",
+      ed_trim_hint: "파형 가장자리를 드래그해서 자르세요 — 내보낸 wav에 그대로 반영됩니다",
+      trim_readout: "시작 {a}ms · 끝 {b}ms · 길이 {c}ms · {hz}Hz",
+      catalog_title: "카탈로그", catalog_close: "닫기", catalog_url_ph: "catalog.json URL", catalog_refresh: "새로고침",
+      catalog_loading: "불러오는 중…", catalog_empty: "카탈로그가 비어 있습니다",
+      catalog_load_error: "카탈로그를 불러오지 못했습니다: {msg}",
+      catalog_row_load: "불러오기", catalog_row_download: "다운로드",
+      publish_title: "게시", publish_close: "닫기",
+      publish_intro: "공유 카탈로그에 바로 게시됩니다 — GitHub 계정 불필요, 킷 이름과 제작자만 입력하면 됩니다.",
+      publish_download: ".gp 다운로드", submit_note_ph: "언급할 내용이 있나요? (선택)",
+      submit_default: "카탈로그에 게시", submit_publishing: "게시 중…",
+      submit_published: "게시됨 ✓", submit_queued: "대기 중 ✓",
+      publish_computing: "체크섬 계산 중…",
+      publish_meta: "{mb}MB · sha256 {hash}…",
+      publish_over_limit: " · 카탈로그 한도 {limit}MB를 초과했습니다 — 샘플을 좀 줄여주세요",
+      publish_need_meta: "공개하기 전에 위쪽에 킷 이름과 제작자를 입력하세요 — 이름 없는 킷은 카탈로그에 올라가지 않습니다.",
+      publish_need_sound: "이 킷에는 아직 소리가 없습니다 — 공개하기 전에 최소 한 패드에 샘플을 올리세요.",
+      result_published: "이미 공개되었습니다 — 공유 카탈로그에 반영되어 있습니다.",
+      result_queued: "현재 제출 한도에 도달해서, 즉시 게시되는 대신 간단한 수동 검토 대기열에 들어갔습니다. 기다리는 동안에도 로컬에서 계속 사용할 수 있어요 — 위의 .gp 파일 형태로 기기에 그대로 남아 있습니다 — 검토가 끝나면 카탈로그에 표시됩니다.",
+      result_error: "게시하지 못했습니다: {msg} — 위의 “.gp 다운로드”를 이용해 다른 방법으로 공유할 수 있습니다.",
+      toast_published: "카탈로그에 게시되었습니다", toast_queued: "검토 대기열에 등록되었습니다",
+      guide_title: "작동 방식", guide_close: "닫기", guide_prev: "이전", guide_next: "다음", guide_done: "시작하기",
+      guide0_h: "Genius·Pad를 위한 사운드, 바로 여기서 제작",
+      guide0_p: "64패드 그리드에 오디오를 드롭하고, 자르고, 이름을 붙여 <b>.gp</b> 킷 파일로 내보내세요 — Genius·Pad 앱이 바로 불러옵니다. <b>당신이</b> 게시를 선택하기 전까지는 아무것도 브라우저를 벗어나지 않습니다.",
+      guide1_h: "4개 뱅크 × 16패드",
+      guide1_p: "필수는 아니지만, 각 뱅크가 고정된 역할을 가지면 킷을 이해하기도 쉽고 연주하기도 더 좋습니다:",
+      bank_a_role: "기본 리듬", bank_b_role: "베이스 & 808", bank_c_role: "멜로디 조각", bank_d_role: "FX & 보컬",
+      guide2_h: "만들고, 공유하세요", guide2_build: "제작", guide2_publish: "게시", guide2_live: "공개됨",
+      guide2_p: "<b>게시</b>를 탭하고 이름을 붙인 다음 <b>카탈로그에 게시</b>를 누르세요 — 끝입니다. GitHub 계정도, 수동 업로드도 필요 없습니다. 곧바로 공유 카탈로그에 공개됩니다.",
+      guide3_h: "아니면 그냥 하나 가져오세요", guide3_catalog: "카탈로그", guide3_loaddl: "불러오기 / 다운로드", guide3_play: "재생",
+      guide3_p: "<b>카탈로그</b>를 열어 킷을 고르세요 — <b>불러오기</b>는 이 에디터에 바로 넣어주고, <b>다운로드</b>는 파일만 저장합니다. 모든 다운로드는 먼저 게시된 체크섬과 대조됩니다. Genius·Pad 앱도 자체 카탈로그가 있어서 여기서 게시한 킷은 그쪽에도 표시됩니다.",
+      toast_mic_https: "마이크는 http(s)가 필요합니다 — README 참고", toast_mic_denied: "마이크 접근이 거부되었습니다",
+      toast_recorded: "{s}초 녹음됨", toast_too_short: "너무 짧습니다",
+      toast_exported_ok: "{fname} 내보냄 — 자체 점검 통과", toast_exported_fail: "내보냈지만 자체 점검 실패 — 상태를 확인하세요",
+      toast_cant_read_gp: "이 .gp를 읽을 수 없습니다",
+      toast_loaded_kit: "“{name}” 불러옴 — {n}패드",
+      toast_downloading: "“{name}” 다운로드 중…",
+      toast_checksum_mismatch: "체크섬이 일치하지 않습니다 — 불러오지 않습니다", toast_download_failed: "다운로드 실패",
+      status_last_export: "최근 내보내기 {size} · {entries}개 항목 · {filled}/64패드 채워짐",
+      status_near_limit: "— 100MB 한도에 근접", status_check_failed: "— {errors}",
+      err_cant_decode: "{filename}을(를) 디코딩할 수 없습니다", err_no_kitjson: "이 압축 파일에 kit.json이 없습니다",
+      err_expected_banks: "4개 뱅크를 예상했지만 {n}개를 받았습니다", err_cant_unzip: "이 브라우저는 deflate 압축을 풀 수 없습니다",
+      kit_one: "킷 {n}개", kit_other: "킷 {n}개",
+      sound_one: "사운드 {n}개 불러옴", sound_other: "사운드 {n}개 불러옴", sound_skipped: ", {n}개 건너뜀",
+    },
+    hi: {
+      kit_name_ph: "किट का नाम", kit_author_ph: "लेखक",
+      status_default: "किसी पैड पर ऑडियो छोड़ें · wav mp3 ogg m4a flac · खाली पैड मौन के रूप में एक्सपोर्ट होते हैं",
+      btn_guide: "गाइड", btn_catalog: "कैटलॉग", btn_load: "लोड करें", btn_publish: "पब्लिश करें", btn_export: ".gp एक्सपोर्ट करें",
+      ed_default_title: "पैड", ed_pick_pad: "एक पैड चुनें",
+      ed_import_file: "फ़ाइल इंपोर्ट करें", ed_record_mic: "माइक रिकॉर्ड करें",
+      ed_mic_disabled_title: "माइक के लिए http://localhost से खोलें — README देखें",
+      ed_drop_hint: "या ऑडियो फ़ाइल सीधे पैड पर छोड़ें",
+      ed_rec_stop: "रोकें और रखें", ed_rec_cancel: "रद्द करें", ed_rec_hint: "रिकॉर्डिंग हो रही है — 20 सेकंड पर खुद रुक जाएगी",
+      ed_play: "चलाएं", ed_replace: "बदलें", ed_remic: "फिर से रिकॉर्ड करें", ed_clear: "मिटाएं",
+      ed_trim_hint: "ट्रिम करने के लिए वेवफ़ॉर्म के किनारे खींचें — यह एक्सपोर्ट की गई wav में सेव हो जाता है",
+      trim_readout: "शुरू {a} ms · अंत {b} ms · लंबाई {c} ms · {hz} Hz",
+      catalog_title: "कैटलॉग", catalog_close: "बंद करें", catalog_url_ph: "catalog.json का URL", catalog_refresh: "रीफ़्रेश करें",
+      catalog_loading: "लोड हो रहा है…", catalog_empty: "कैटलॉग खाली है",
+      catalog_load_error: "कैटलॉग लोड नहीं हो सका: {msg}",
+      catalog_row_load: "लोड करें", catalog_row_download: "डाउनलोड करें",
+      publish_title: "पब्लिश करें", publish_close: "बंद करें",
+      publish_intro: "सीधे साझा कैटलॉग में पब्लिश होता है — कोई GitHub अकाउंट नहीं चाहिए, बस किट का नाम और लेखक भरना है।",
+      publish_download: ".gp डाउनलोड करें", submit_note_ph: "कुछ बताना है? (वैकल्पिक)",
+      submit_default: "कैटलॉग में पब्लिश करें", submit_publishing: "पब्लिश हो रहा है…",
+      submit_published: "पब्लिश हो गया ✓", submit_queued: "कतार में ✓",
+      publish_computing: "चेकसम की गणना हो रही है…",
+      publish_meta: "{mb} MB · sha256 {hash}…",
+      publish_over_limit: " · कैटलॉग की {limit} MB सीमा से अधिक — कुछ सैंपल छोटे करें",
+      publish_need_meta: "प्रकाशित करने से पहले ऊपर किट का नाम और लेखक भरें — बिना नाम के किट कैटलॉग में नहीं जाते।",
+      publish_need_sound: "इस किट में अभी कोई आवाज़ नहीं है — पब्लिश करने से पहले कम से कम एक पैड पर सैंपल डालें।",
+      result_published: "यह लाइव है — पहले से साझा कैटलॉग में है।",
+      result_queued: "आप फ़िलहाल जमा करने की सीमा तक पहुँच चुके हैं, इसलिए यह तुरंत पब्लिश होने के बजाय एक छोटी मैनुअल जांच की कतार में है। इंतज़ार करते समय आप इसे स्थानीय रूप से इस्तेमाल करते रह सकते हैं — यह ऊपर .gp फ़ाइल के रूप में आपके डिवाइस पर मौजूद है — जांच होने के बाद यह कैटलॉग में दिखेगा।",
+      result_error: "पब्लिश नहीं हो सका: {msg} — आप फिर भी ऊपर “.gp डाउनलोड करें” का उपयोग करके फ़ाइल किसी और तरीके से शेयर कर सकते हैं।",
+      toast_published: "कैटलॉग में पब्लिश हो गया", toast_queued: "समीक्षा के लिए कतार में डाला गया",
+      guide_title: "यह कैसे काम करता है", guide_close: "बंद करें", guide_prev: "पीछे", guide_next: "आगे", guide_done: "चलिए शुरू करें",
+      guide0_h: "Genius·Pad के लिए साउंड, यहीं बनाए गए",
+      guide0_p: "64-पैड ग्रिड पर ऑडियो छोड़ें, उसे ट्रिम करें, नाम दें, और एक <b>.gp</b> किट फ़ाइल एक्सपोर्ट करें — Genius·Pad ऐप इसे सीधे लोड कर लेता है। जब तक <b>आप</b> पब्लिश करना न चुनें, तब तक कुछ भी आपके ब्राउज़र से बाहर नहीं जाता।",
+      guide1_h: "4 बैंक × 16 पैड",
+      guide1_p: "ज़रूरी नहीं है, लेकिन किट तब बेहतर समझ आती हैं — और बजाने में भी बेहतर लगती हैं — जब हर बैंक की एक तय भूमिका हो:",
+      bank_a_role: "मुख्य ताल", bank_b_role: "बेस और 808", bank_c_role: "मधुर टुकड़े", bank_d_role: "FX और वोकल्स",
+      guide2_h: "बनाएं, फिर शेयर करें", guide2_build: "बनाएं", guide2_publish: "पब्लिश करें", guide2_live: "लाइव",
+      guide2_p: "<b>पब्लिश करें</b> पर टैप करें, एक नाम दें, <b>कैटलॉग में पब्लिश करें</b> दबाएं — बस इतना ही। कोई GitHub अकाउंट नहीं, हाथ से कुछ अपलोड नहीं करना। यह तुरंत साझा कैटलॉग में लाइव हो जाता है।",
+      guide3_h: "या बस एक ले लें", guide3_catalog: "कैटलॉग", guide3_loaddl: "लोड करें / डाउनलोड करें", guide3_play: "बजाएं",
+      guide3_p: "<b>कैटलॉग</b> खोलें, एक किट चुनें — <b>लोड करें</b> इसे सीधे इस एडिटर में डाल देता है, <b>डाउनलोड करें</b> बस फ़ाइल सेव करता है। हर डाउनलोड पहले उसकी पब्लिश की गई चेकसम से जांचा जाता है। Genius·Pad ऐप का अपना कैटलॉग भी है, तो यहां पब्लिश की गई किट्स वहां भी दिखेंगी।",
+      toast_mic_https: "माइक के लिए http(s) चाहिए — README देखें", toast_mic_denied: "माइक्रोफ़ोन एक्सेस अस्वीकृत",
+      toast_recorded: "{s} सेकंड रिकॉर्ड किया", toast_too_short: "बहुत छोटा",
+      toast_exported_ok: "{fname} एक्सपोर्ट किया — सेल्फ़-चेक ठीक है", toast_exported_fail: "एक्सपोर्ट हुआ, सेल्फ़-चेक फ़ेल — स्टेटस देखें",
+      toast_cant_read_gp: "वह .gp पढ़ा नहीं जा सका",
+      toast_loaded_kit: "“{name}” लोड हुआ — {n} पैड",
+      toast_downloading: "“{name}” डाउनलोड हो रहा है…",
+      toast_checksum_mismatch: "चेकसम मेल नहीं खाया — लोड नहीं कर रहे", toast_download_failed: "डाउनलोड नाकाम रहा",
+      status_last_export: "आख़िरी एक्सपोर्ट {size} · {entries} एंट्री · {filled}/64 पैड भरे",
+      status_near_limit: "— 100 MB सीमा के करीब", status_check_failed: "— {errors}",
+      err_cant_decode: "{filename} को डिकोड नहीं किया जा सका", err_no_kitjson: "उस आर्काइव में kit.json नहीं है",
+      err_expected_banks: "4 बैंक अपेक्षित थे, {n} मिले", err_cant_unzip: "यह ब्राउज़र deflate आर्काइव को अनज़िप नहीं कर सकता",
+      kit_one: "{n} किट", kit_other: "{n} किट्स",
+      sound_one: "{n} साउंड लोड हुआ", sound_other: "{n} साउंड लोड हुए", sound_skipped: ", {n} छोड़े गए",
+    },
+    ar: {
+      kit_name_ph: "اسم الطقم", kit_author_ph: "المؤلف",
+      status_default: "أسقط صوتًا على لوحة · wav mp3 ogg m4a flac · اللوحات الفارغة تُصدَّر كصمت",
+      btn_guide: "الدليل", btn_catalog: "الكتالوج", btn_load: "تحميل", btn_publish: "نشر", btn_export: "تصدير .gp",
+      ed_default_title: "لوحة", ed_pick_pad: "اختر لوحة",
+      ed_import_file: "استيراد ملف", ed_record_mic: "تسجيل من الميكروفون",
+      ed_mic_disabled_title: "افتح عبر http://localhost لاستخدام الميكروفون — راجع README",
+      ed_drop_hint: "أو أسقط ملف صوت مباشرة على اللوحة",
+      ed_rec_stop: "إيقاف والاحتفاظ", ed_rec_cancel: "إلغاء", ed_rec_hint: "جارٍ التسجيل — سيتوقف تلقائيًا عند 20 ثانية",
+      ed_play: "تشغيل", ed_replace: "استبدال", ed_remic: "إعادة التسجيل", ed_clear: "مسح",
+      ed_trim_hint: "اسحب حواف الموجة للقص — يُحفظ ذلك في ملف wav المُصدَّر",
+      trim_readout: "البداية {a} مللي ثانية · النهاية {b} مللي ثانية · المدة {c} مللي ثانية · {hz} هرتز",
+      catalog_title: "الكتالوج", catalog_close: "إغلاق", catalog_url_ph: "رابط catalog.json", catalog_refresh: "تحديث",
+      catalog_loading: "جارٍ التحميل…", catalog_empty: "الكتالوج فارغ",
+      catalog_load_error: "تعذّر تحميل الكتالوج: {msg}",
+      catalog_row_load: "تحميل", catalog_row_download: "تنزيل",
+      publish_title: "نشر", publish_close: "إغلاق",
+      publish_intro: "يُنشر مباشرة في الكتالوج المشترك — بلا حساب GitHub، فقط اسم الطقم والمؤلف.",
+      publish_download: "تنزيل .gp", submit_note_ph: "أي شيء يستحق الذكر؟ (اختياري)",
+      submit_default: "نشر في الكتالوج", submit_publishing: "جارٍ النشر…",
+      submit_published: "تم النشر ✓", submit_queued: "في قائمة الانتظار ✓",
+      publish_computing: "جارٍ حساب المجموع التحققي…",
+      publish_meta: "{mb} MB · sha256 {hash}…",
+      publish_over_limit: " · يتجاوز حد الكتالوج البالغ {limit} MB — قلّص بعض العينات",
+      publish_need_meta: "اكتب اسم الطقم والمؤلف في الأعلى قبل النشر — الكتالوج لا يقبل أطقمًا بلا اسم.",
+      publish_need_sound: "هذا الطقم لا يحتوي أي صوت بعد — ضع عيّنة على لوحة واحدة على الأقل قبل النشر.",
+      result_published: "أصبح متاحًا الآن — موجود بالفعل في الكتالوج المشترك.",
+      result_queued: "لقد بلغت حد الإرسال للوقت الحالي، لذا وُضع هذا الطقم في قائمة انتظار لمراجعة يدوية سريعة بدلًا من النشر الفوري. يمكنك الاستمرار في استخدامه محليًا أثناء الانتظار — لا يزال على جهازك كملف .gp أعلاه — وسيظهر في الكتالوج بعد المراجعة.",
+      result_error: "تعذّر النشر: {msg} — لا يزال بإمكانك استخدام “تنزيل .gp” أعلاه ومشاركة الملف بطريقة أخرى.",
+      toast_published: "تم النشر في الكتالوج", toast_queued: "وُضع في قائمة انتظار المراجعة",
+      guide_title: "كيف يعمل هذا", guide_close: "إغلاق", guide_prev: "السابق", guide_next: "التالي", guide_done: "لنبدأ",
+      guide0_h: "أصوات لتطبيق Genius·Pad، تُصنع هنا مباشرة",
+      guide0_p: "أسقط الصوت على شبكة من 64 لوحة، اقصّه، سمِّه، وصدِّره كملف طقم <b>.gp</b> — يحمّله تطبيق Genius·Pad مباشرة. لا يغادر متصفحك شيء حتى تختار <b>أنت</b> نشره.",
+      guide1_h: "4 بنوك × 16 لوحة",
+      guide1_p: "ليس إلزاميًا، لكن الأطقم تُفهم بشكل أفضل — وتُعزف بشكل أفضل — عندما يلتزم كل بنك بدور ثابت:",
+      bank_a_role: "الإيقاع الأساسي", bank_b_role: "الباس و808", bank_c_role: "مقاطع لحنية", bank_d_role: "المؤثرات والأصوات",
+      guide2_h: "اصنعه، ثم شاركه", guide2_build: "إنشاء", guide2_publish: "نشر", guide2_live: "متاح",
+      guide2_p: "اضغط على <b>نشر</b>، أعطه اسمًا، اضغط على <b>نشر في الكتالوج</b> — هذا كل شيء. بلا حساب GitHub، ولا رفع يدوي لأي شيء. يصبح متاحًا في الكتالوج المشترك فورًا.",
+      guide3_h: "أو احصل على واحد جاهز", guide3_catalog: "الكتالوج", guide3_loaddl: "تحميل / تنزيل", guide3_play: "تشغيل",
+      guide3_p: "افتح <b>الكتالوج</b>، اختر طقمًا — <b>تحميل</b> يضعه مباشرة في هذا المحرر، و<b>تنزيل</b> يحفظ الملف فقط. يُتحقق من كل تنزيل أولًا مقابل مجموعه التحققي المنشور. لدى تطبيق Genius·Pad كتالوجه الخاص أيضًا، فتظهر فيه الأطقم المنشورة هنا كذلك.",
+      toast_mic_https: "الميكروفون يحتاج http(s) — راجع README", toast_mic_denied: "تم رفض الوصول إلى الميكروفون",
+      toast_recorded: "تم تسجيل {s} ثانية", toast_too_short: "قصير جدًا",
+      toast_exported_ok: "تم تصدير {fname} — الفحص الذاتي سليم", toast_exported_fail: "تم التصدير، لكن الفحص الذاتي فشل — راجع الحالة",
+      toast_cant_read_gp: "تعذّرت قراءة ملف .gp هذا",
+      toast_loaded_kit: "تم تحميل “{name}” — {n} لوحة",
+      toast_downloading: "جارٍ تنزيل “{name}”…",
+      toast_checksum_mismatch: "المجموع التحققي غير مطابق — لن يتم التحميل", toast_download_failed: "فشل التنزيل",
+      status_last_export: "آخر تصدير {size} · {entries} عنصرًا · {filled}/64 لوحة ممتلئة",
+      status_near_limit: "— قريب من حد 100 MB", status_check_failed: "— {errors}",
+      err_cant_decode: "تعذّر فك ترميز {filename}", err_no_kitjson: "لا يوجد kit.json في هذا الأرشيف",
+      err_expected_banks: "كان متوقعًا 4 بنوك، وردت {n}", err_cant_unzip: "لا يستطيع هذا المتصفح فك ضغط أرشيفات deflate",
+      kit_zero: "لا توجد أطقم", kit_one: "طقم واحد", kit_two: "طقمان", kit_few: "{n} أطقم", kit_many: "{n} طقمًا", kit_other: "{n} طقم",
+      sound_zero: "لم يتم تحميل أي صوت", sound_one: "تم تحميل صوت واحد", sound_two: "تم تحميل صوتين", sound_few: "تم تحميل {n} أصوات", sound_many: "تم تحميل {n} صوتًا", sound_other: "تم تحميل {n} صوت", sound_skipped: "، تم تخطي {n}",
+    },
+  });
+
+  var SUPPORTED_LANGS = ["en", "es", "zh-CN", "de", "fr", "pt-BR", "ja", "ko", "ar", "hi", "it", "tr", "id", "ru", "uk"];
+  function detectLang() {
+    var qp = null;
+    try { qp = new URLSearchParams(location.search).get("lang"); } catch (_) {}
+    var raw = qp || (navigator.languages && navigator.languages[0]) || navigator.language || "en";
+    var norm = String(raw).replace(/_/g, "-");
+    var exact = SUPPORTED_LANGS.filter(function (s) { return s.toLowerCase() === norm.toLowerCase(); })[0];
+    if (exact) return exact;
+    if (/^zh/i.test(norm)) return "zh-CN";
+    if (/^pt/i.test(norm)) return "pt-BR";
+    if (/^(id|in)\b/i.test(norm)) return "id";
+    var base = norm.split("-")[0].toLowerCase();
+    var baseMatch = SUPPORTED_LANGS.filter(function (s) { return s.split("-")[0].toLowerCase() === base; })[0];
+    return baseMatch || "en";
+  }
+  var LANG = detectLang();
+  document.documentElement.lang = LANG;
+  if (LANG === "ar") document.documentElement.dir = "rtl";
+
+  /** Строка по ключу на текущем языке, откат на английский, откат на сам ключ. */
+  function t(key, vars) {
+    var dict = I18N[LANG] || I18N.en;
+    var s = dict[key] != null ? dict[key] : (I18N.en[key] != null ? I18N.en[key] : key);
+    if (vars) for (var k in vars) s = s.split("{" + k + "}").join(vars[k]);
+    return s;
+  }
+  /** Множественное число — простая пара one/other везде, кроме ru/uk
+   *  (три формы) и ar (полный набор zero/one/two/few/many/other). */
+  function pluralForm(n) {
+    if (LANG === "ru" || LANG === "uk") {
+      var mod10 = n % 10, mod100 = n % 100;
+      if (mod10 === 1 && mod100 !== 11) return "one";
+      if (mod10 >= 2 && mod10 <= 4 && !(mod100 >= 12 && mod100 <= 14)) return "few";
+      return "many";
+    }
+    if (LANG === "ar") {
+      if (n === 0) return "zero";
+      if (n === 1) return "one";
+      if (n === 2) return "two";
+      var m100 = n % 100;
+      if (m100 >= 3 && m100 <= 10) return "few";
+      if (m100 >= 11 && m100 <= 99) return "many";
+      return "other";
+    }
+    return n === 1 ? "one" : "other";
+  }
+  function tPlural(base, n, vars) {
+    var dict = I18N[LANG] || I18N.en;
+    var form = pluralForm(n);
+    var key = base + "_" + form;
+    var s = dict[key] != null ? dict[key] : (dict[base + "_other"] || I18N.en[base + "_other"]);
+    var v = Object.assign({ n: n }, vars || {});
+    for (var k in v) s = s.split("{" + k + "}").join(v[k]);
+    return s;
+  }
+
   // высота приложения = реальная видимая область (не dvh — он врёт на части
   // мобильных Chrome с убирающимся тулбаром)
   function setAppHeight() {
@@ -476,7 +1355,7 @@
 
   function newBank() { return { pads: new Array(16).fill(null) }; }
   var state = {
-    name: "Untitled Kit", author: "", bpm: 90,
+    name: "", author: "", bpm: 90,
     banks: [newBank(), newBank(), newBank(), newBank()],
     active: 0, selected: null,
   };
@@ -486,6 +1365,50 @@
   var $ = function (id) { return document.getElementById(id); };
   var gridEl = $("grid"), banksEl = $("banks"), editorEl = $("editor"), statusEl = $("status"),
       fileInput = $("fileInput"), gpadInput = $("gpadInput"), dl = $("dl"), toastEl = $("toast");
+
+  // ---- i18n: разметка целиком статичная (английский), здесь один раз при
+  // загрузке подменяем текст на язык устройства — сама разметка остаётся
+  // рабочим фолбэком, если вдруг i18n выше не подхватился
+  (function applyStaticI18n() {
+    $("guideBtn").textContent = t("btn_guide"); $("guideBtn").title = t("btn_guide");
+    $("catalogBtn").textContent = t("btn_catalog");
+    $("loadBtn").textContent = t("btn_load");
+    $("publishBtn").textContent = t("btn_publish");
+    $("exportBtn").textContent = t("btn_export");
+    $("kitName").placeholder = t("kit_name_ph"); $("kitName").setAttribute("aria-label", t("kit_name_ph"));
+    $("kitAuthor").placeholder = t("kit_author_ph"); $("kitAuthor").setAttribute("aria-label", t("kit_author_ph"));
+    statusEl.textContent = t("status_default");
+    $("edNum").textContent = t("ed_default_title");
+    $("catalogTitle").textContent = t("catalog_title");
+    $("catalogClose").textContent = t("catalog_close");
+    $("catalogUrl").placeholder = t("catalog_url_ph");
+    $("catalogRefresh").textContent = t("catalog_refresh");
+    $("publishTitle").textContent = t("publish_title");
+    $("publishClose").textContent = t("publish_close");
+    $("publishIntro").textContent = t("publish_intro");
+    $("publishDownload").textContent = t("publish_download");
+    $("submitNote").placeholder = t("submit_note_ph");
+    $("submitBtn").textContent = t("submit_default");
+    $("guideTitle").textContent = t("guide_title");
+    $("guideClose").textContent = t("guide_close");
+    $("guide0h").textContent = t("guide0_h");
+    $("guide0p").innerHTML = t("guide0_p");
+    $("guide1h").textContent = t("guide1_h");
+    $("guide1p").textContent = t("guide1_p");
+    $("guide2h").textContent = t("guide2_h");
+    $("guide2Build").textContent = t("guide2_build");
+    $("guide2Publish").textContent = t("guide2_publish");
+    $("guide2Live").textContent = t("guide2_live");
+    $("guide2p").innerHTML = t("guide2_p");
+    $("guide3h").textContent = t("guide3_h");
+    $("guide3Catalog").textContent = t("guide3_catalog");
+    $("guide3Loaddl").textContent = t("guide3_loaddl");
+    $("guide3Play").textContent = t("guide3_play");
+    $("guide3p").innerHTML = t("guide3_p");
+    $("guidePrev").textContent = t("guide_prev");
+    $("guideNext").textContent = t("guide_next");
+    $("guideDone").textContent = t("guide_done");
+  })();
 
   var toastT = 0;
   function toast(msg, bad) {
@@ -506,7 +1429,7 @@
   function decodeFile(file) {
     return file.arrayBuffer().then(function (ab) {
       return new Promise(function (res, rej) {
-        ac.decodeAudioData(ab, res, function () { rej(new Error("can't decode " + file.name)); });
+        ac.decodeAudioData(ab, res, function () { rej(new Error(t("err_cant_decode", { filename: file.name }))); });
       });
     });
   }
@@ -542,7 +1465,7 @@
   }
 
   function inflateRaw(u8) {
-    if (typeof DecompressionStream === "undefined") throw new Error("this browser can't unzip deflated archives");
+    if (typeof DecompressionStream === "undefined") throw new Error(t("err_cant_unzip"));
     var ds = new DecompressionStream("deflate-raw");
     var stream = new Blob([u8]).stream().pipeThrough(ds);
     return new Response(stream).arrayBuffer().then(function (ab) { return new Uint8Array(ab); });
@@ -623,7 +1546,7 @@
   function renderEditor() {
     var idx = state.selected;
     var body = $("edBody");
-    if (idx == null) { $("edNum").textContent = "PAD"; body.innerHTML = '<div class="ed-hint">pick a pad</div>'; return; }
+    if (idx == null) { $("edNum").textContent = t("ed_default_title"); body.innerHTML = '<div class="ed-hint">' + escapeHtml(t("ed_pick_pad")) + '</div>'; return; }
     $("edNum").textContent = BANKS[state.active] + String(idx + 1).padStart(2, "0");
     var pad = activeBank().pads[idx];
 
@@ -635,10 +1558,10 @@
   function renderEmptyUI(body, idx) {
     body.innerHTML =
       '<div class="ed-row">' +
-        '<button class="primary" id="edImport">Import file</button>' +
-        '<button id="edMic"' + (micOK ? "" : ' disabled title="open via http://localhost for mic — see README"') + '>&#9679; Record mic</button>' +
+        '<button class="primary" id="edImport">' + escapeHtml(t("ed_import_file")) + '</button>' +
+        '<button id="edMic"' + (micOK ? "" : ' disabled title="' + escapeHtml(t("ed_mic_disabled_title")) + '"') + '>&#9679; ' + escapeHtml(t("ed_record_mic")) + '</button>' +
       "</div>" +
-      '<div class="ed-hint">or drop an audio file straight onto the pad</div>';
+      '<div class="ed-hint">' + escapeHtml(t("ed_drop_hint")) + '</div>';
     $("edImport").onclick = function () { pendingTarget = { bank: state.active, pad: idx }; fileInput.value = ""; fileInput.click(); };
     if (micOK) $("edMic").onclick = function () { startRec(state.active, idx, false); };
   }
@@ -646,8 +1569,8 @@
   function renderRecUI(body) {
     body.innerHTML =
       '<div class="ed-row"><span class="rec-dot"></span><div class="meter"><i id="recBar"></i></div><span class="mono" id="recTime">0.0s</span></div>' +
-      '<div class="ed-row"><button class="primary" id="recStop">Stop &amp; keep</button><button class="ghost" id="recCancel">Cancel</button></div>' +
-      '<div class="ed-hint">recording — auto-stops at 20s</div>';
+      '<div class="ed-row"><button class="primary" id="recStop">' + escapeHtml(t("ed_rec_stop")) + '</button><button class="ghost" id="recCancel">' + escapeHtml(t("ed_rec_cancel")) + '</button></div>' +
+      '<div class="ed-hint">' + escapeHtml(t("ed_rec_hint")) + '</div>';
     $("recStop").onclick = function () { stopRec(true); };
     $("recCancel").onclick = cancelRec;
   }
@@ -657,13 +1580,13 @@
       '<div class="wavewrap" id="waveWrap"><canvas id="waveCanvas"></canvas></div>' +
       '<div class="trimline mono" id="trimReadout"></div>' +
       '<div class="ed-row">' +
-        '<button class="small" id="edPlay">&#9654; Play</button>' +
-        '<button class="small ghost" id="edReplace">Replace</button>' +
-        (micOK ? '<button class="small ghost" id="edReMic">&#9679; Re-record</button>' : "") +
-        '<button class="small ghost" id="edClear">Clear</button>' +
+        '<button class="small" id="edPlay">&#9654; ' + escapeHtml(t("ed_play")) + '</button>' +
+        '<button class="small ghost" id="edReplace">' + escapeHtml(t("ed_replace")) + '</button>' +
+        (micOK ? '<button class="small ghost" id="edReMic">&#9679; ' + escapeHtml(t("ed_remic")) + '</button>' : "") +
+        '<button class="small ghost" id="edClear">' + escapeHtml(t("ed_clear")) + '</button>' +
       "</div>" +
       '<div class="ed-row"><input class="lbl" id="edLabel" maxlength="40" value="' + escapeHtml(pad.label) + '"></div>' +
-      '<div class="ed-hint">drag the waveform edges to trim — baked into the exported wav</div>';
+      '<div class="ed-hint">' + escapeHtml(t("ed_trim_hint")) + '</div>';
     drawWave(pad); updateTrimReadout(pad); wireWaveDrag();
     $("edPlay").onclick = function () { preview(pad); };
     $("edReplace").onclick = function () { pendingTarget = { bank: state.active, pad: idx, replace: true }; fileInput.value = ""; fileInput.click(); };
@@ -704,9 +1627,9 @@
   }
   function updateTrimReadout(pad) {
     var sr = pad.buffer.sampleRate, ms = function (f) { return (f / sr * 1000).toFixed(0); };
-    $("trimReadout").textContent =
-      "start " + ms(pad.start) + " ms  ·  end " + ms(pad.end) + " ms  ·  " +
-      "len " + ms(pad.end - pad.start) + " ms  ·  " + Math.round(sr) + " Hz";
+    $("trimReadout").textContent = t("trim_readout", {
+      a: ms(pad.start), b: ms(pad.end), c: ms(pad.end - pad.start), hz: Math.round(sr),
+    });
   }
   var dragging = null;
   function wireWaveDrag() {
@@ -755,7 +1678,7 @@
       if (target && !target.replace && done) { state.active = bi; state.selected = slots[0]; }
       renderAll();
       if (state.selected != null) { renderEditor(); }
-      if (done) toast(done + (done === 1 ? " sound loaded" : " sounds loaded") + (failed ? ", " + failed + " skipped" : ""));
+      if (done) toast(tPlural("sound", done) + (failed ? t("sound_skipped", { n: failed }) : ""));
     }
     list.forEach(function (file, k) {
       if (k >= slots.length) { failed++; step(); return; }
@@ -767,7 +1690,7 @@
 
   // ---- mic capture (raw PCM, no codec) ----
   function startRec(bi, pi, replace) {
-    if (!micOK) { toast("mic needs http(s) — see README", true); return; }
+    if (!micOK) { toast(t("toast_mic_https"), true); return; }
     ac.resume();
     navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } })
       .then(function (stream) {
@@ -786,7 +1709,7 @@
         node.connect(proc); proc.connect(sink); sink.connect(ac.destination);
         renderEditor(); recLoop();
       })
-      .catch(function () { toast("microphone access denied", true); });
+      .catch(function () { toast(t("toast_mic_denied"), true); });
   }
   function recLoop() {
     if (!rec) return;
@@ -813,10 +1736,10 @@
       rec = null;
       state.active = r.bank; state.selected = r.pad;
       renderAll(); renderEditor();
-      toast("recorded " + (r.len / ac.sampleRate).toFixed(1) + "s");
+      toast(t("toast_recorded", { s: (r.len / ac.sampleRate).toFixed(1) }));
     } else {
       rec = null; renderAll(); renderEditor();
-      if (keep) toast("too short", true);
+      if (keep) toast(t("toast_too_short"), true);
     }
   }
   function cancelRec() { if (rec) { teardownRec(); rec = null; renderEditor(); } }
@@ -846,8 +1769,8 @@
   });
 
   // ---- meta ----
-  $("kitName").addEventListener("input", function () { state.name = this.value; });
-  $("kitAuthor").addEventListener("input", function () { state.author = this.value; });
+  $("kitName").addEventListener("input", function () { state.name = this.value; refreshPublishGate(); });
+  $("kitAuthor").addEventListener("input", function () { state.author = this.value; refreshPublishGate(); });
   $("kitBpm").addEventListener("input", function () { var v = parseInt(this.value, 10); if (!isNaN(v)) state.bpm = v; });
 
   // ---- export ----
@@ -875,7 +1798,7 @@
     var bytes = C.assembleGpad(r.kit, r.samples);
     return { r: r, bytes: bytes };
   }
-  function exportFilename() { return (C.sanitizeLabel(state.name) || "kit") + C.GPAD_EXT; }
+  function exportFilename() { return (state.name.trim() ? C.sanitizeLabel(state.name) : "kit") + C.GPAD_EXT; }
   function downloadBytes(bytes, fname) {
     var url = URL.createObjectURL(new Blob([bytes], { type: "application/octet-stream" }));
     dl.href = url; dl.download = fname; dl.click();
@@ -887,15 +1810,15 @@
     downloadBytes(a.bytes, fname);
     C.validateGpadStructure(a.bytes, inflateRaw).then(function (v) {
       renderStatus(a.bytes.length, a.r.samples.length, v);
-      toast(v.ok ? "exported " + fname + " — self-check ok" : "exported, self-check FAILED — see status", !v.ok);
+      toast(v.ok ? t("toast_exported_ok", { fname: fname }) : t("toast_exported_fail"), !v.ok);
     });
   };
   function renderStatus(bytes, sampleCount, check) {
     var empty = 0; state.banks.forEach(function (b) { b.pads.forEach(function (p) { if (!p) empty++; }); });
     var size = bytes / 1024 / 1024 < 1 ? (bytes / 1024).toFixed(0) + " KB" : (bytes / 1024 / 1024).toFixed(1) + " MB";
-    var html = "last export " + size + " · " + (sampleCount + 2) + " entries · " + (64 - empty) + "/64 pads filled";
-    if (bytes > 90 * 1024 * 1024) html += ' <span class="warn">— near the 100 MB limit</span>';
-    if (check && !check.ok) html += ' <span class="err">— ' + escapeHtml(check.errors.join("; ")) + "</span>";
+    var html = t("status_last_export", { size: size, entries: sampleCount + 2, filled: 64 - empty });
+    if (bytes > 90 * 1024 * 1024) html += ' <span class="warn">' + escapeHtml(t("status_near_limit")) + "</span>";
+    if (check && !check.ok) html += ' <span class="err">' + escapeHtml(t("status_check_failed", { errors: check.errors.join("; ") })) + "</span>";
     statusEl.innerHTML = html;
   }
 
@@ -903,17 +1826,17 @@
   $("loadBtn").onclick = function () { gpadInput.value = ""; gpadInput.click(); };
   gpadInput.addEventListener("change", function () { if (this.files[0]) loadGpadFile(this.files[0]); });
   function loadGpadFile(file) {
-    file.arrayBuffer().then(loadGpadBytes).catch(function (err) { toast(err.message || "couldn't read that .gp", true); });
+    file.arrayBuffer().then(loadGpadBytes).catch(function (err) { toast(err.message || t("toast_cant_read_gp"), true); });
   }
   /** ab: ArrayBuffer | Uint8Array — общий путь и для File (Load / drag-drop), и для каталога (fetch). */
   function loadGpadBytes(ab) {
     return C.zipRead(new Uint8Array(ab), inflateRaw).then(function (files) {
-      var manifest = files["kit.json"]; if (!manifest) throw new Error("no kit.json in that archive");
+      var manifest = files["kit.json"]; if (!manifest) throw new Error(t("err_no_kitjson"));
       var o = JSON.parse(new TextDecoder().decode(manifest));
       var spec = (o.format || 1) <= 1
         ? BANKS.map(function () { return Array.isArray(o.pads) ? o.pads : []; })
         : (o.banks || []);
-      if (spec.length !== 4) throw new Error("expected 4 banks, got " + spec.length);
+      if (spec.length !== 4) throw new Error(t("err_expected_banks", { n: spec.length }));
       var fresh = [newBank(), newBank(), newBank(), newBank()], jobs = [];
       spec.slice(0, 4).forEach(function (bank, bi) {
         (bank.pads || []).forEach(function (p) {
@@ -930,15 +1853,16 @@
         });
       });
       Promise.all(jobs).then(function () {
-        state.name = o.name || "Untitled Kit"; state.author = o.author || "";
+        state.name = o.name || ""; state.author = o.author || "";
         state.bpm = Math.min(300, Math.max(40, Math.round(o.bpm || 90)));
         state.banks = fresh; state.active = 0; state.selected = null;
         $("kitName").value = state.name; $("kitAuthor").value = state.author; $("kitBpm").value = state.bpm;
+        refreshPublishGate();
         var filled = 0; fresh.forEach(function (b) { b.pads.forEach(function (p) { if (p) filled++; }); });
         renderAll();
-        toast("loaded “" + state.name + "” — " + filled + " pads");
+        toast(t("toast_loaded_kit", { name: state.name || t("kit_name_ph"), n: filled }));
       });
-    }).catch(function (err) { toast(err.message || "couldn't read that .gp", true); });
+    }).catch(function (err) { toast(err.message || t("toast_cant_read_gp"), true); });
   }
 
   // ---- каталог: настройки в localStorage, ничего не зашито в код ----
@@ -971,16 +1895,16 @@
 
   function refreshCatalog() {
     var url = catalogUrlInput.value.trim() || "catalog.json";
-    catalogHint.textContent = "loading…"; catalogList.innerHTML = "";
+    catalogHint.textContent = t("catalog_loading"); catalogList.innerHTML = "";
     fetch(url, { cache: "no-store" }).then(function (res) {
       if (!res.ok) throw new Error("HTTP " + res.status);
       return res.json();
     }).then(function (data) {
       var kits = Array.isArray(data.kits) ? data.kits : [];
-      if (!kits.length) { catalogHint.textContent = "catalog is empty"; return; }
-      catalogHint.textContent = kits.length + " kit" + (kits.length === 1 ? "" : "s");
+      if (!kits.length) { catalogHint.textContent = t("catalog_empty"); return; }
+      catalogHint.textContent = tPlural("kit", kits.length);
       renderCatalogList(kits, catalogBaseUrl());
-    }).catch(function (err) { catalogHint.textContent = "couldn't load catalog: " + err.message; });
+    }).catch(function (err) { catalogHint.textContent = t("catalog_load_error", { msg: err.message }); });
   }
 
   function renderCatalogList(kits, base) {
@@ -994,8 +1918,8 @@
       row.innerHTML =
         '<div class="meta"><div class="name">' + escapeHtml(entry.name || entry.id || "kit") + '</div>' +
         '<div class="sub">' + escapeHtml(entry.author || "") + (entry.bpm ? " · " + entry.bpm + " BPM" : "") + (size ? " · " + size : "") + '</div></div>' +
-        '<button class="small ghost" data-act="load">Load</button>' +
-        '<button class="small ghost" data-act="dl">Download</button>';
+        '<button class="small ghost" data-act="load">' + escapeHtml(t("catalog_row_load")) + '</button>' +
+        '<button class="small ghost" data-act="dl">' + escapeHtml(t("catalog_row_download")) + '</button>';
       var fileUrl = resolveCatalogFileUrl(entry.file || "", base);
       row.querySelector('[data-act="dl"]').onclick = function () {
         fetchCatalogFile(fileUrl, entry, function (ab) { downloadBytes(new Uint8Array(ab), (entry.id || "kit") + C.GPAD_EXT); });
@@ -1008,17 +1932,17 @@
   }
 
   function fetchCatalogFile(url, entry, onOk) {
-    toast("downloading “" + (entry.name || entry.id) + "”…");
+    toast(t("toast_downloading", { name: entry.name || entry.id }));
     fetch(url).then(function (res) {
       if (!res.ok) throw new Error("HTTP " + res.status);
       return res.arrayBuffer();
     }).then(function (ab) {
       if (!entry.sha256) return ab;
       return C.sha256Hex(new Uint8Array(ab)).then(function (hex) {
-        if (hex !== entry.sha256) throw new Error("checksum mismatch — not loading");
+        if (hex !== entry.sha256) throw new Error(t("toast_checksum_mismatch"));
         return ab;
       });
-    }).then(onOk).catch(function (err) { toast(err.message || "download failed", true); });
+    }).then(onOk).catch(function (err) { toast(err.message || t("toast_download_failed"), true); });
   }
 
   // ---- publish: прямая публикация в каталог через маленький бэкенд, без гитхаба ----
@@ -1035,29 +1959,69 @@
   wireModalClose(publishBackdrop, "publishClose");
 
   var publishBytes = null, publishEntry = null;
+
+  /* В каталог не уходит кит без названия и автора (в записи каталога это
+     единственное, по чему его узнают и кого благодарить) и кит без единого
+     звука (слушать нечего). Здесь — только подсветка и блокировка кнопки;
+     настоящая проверка живёт в воркере (`/submit` отвечает 400), потому что
+     HTML обойти нечего стоит. Экспорт `.gp` себе на диск не ограничен —
+     запрет только на публикацию. */
+  function filledPadCount() {
+    var n = 0;
+    state.banks.forEach(function (b) { b.pads.forEach(function (p) { if (p) n++; }); });
+    return n;
+  }
+  /** Причина, по которой публикация заперта, или "" — можно. */
+  function publishBlockReason() {
+    if (!state.name.trim() || !state.author.trim()) return t("publish_need_meta");
+    if (!filledPadCount()) return t("publish_need_sound");
+    return "";
+  }
+  var gateMsgShown = false;   // сообщение поставил гейт, а не ответ сервера
+  function refreshPublishGate() {
+    $("kitName").classList.toggle("field-missing", !state.name.trim());
+    $("kitAuthor").classList.toggle("field-missing", !state.author.trim());
+    if (!$("publishBackdrop").classList.contains("open")) return;
+    var btn = $("submitBtn"), resultEl = $("submitResult"), why = publishBlockReason();
+    if (why) {
+      btn.disabled = true;
+      resultEl.className = "hint publish-warn";
+      resultEl.textContent = why;
+      gateMsgShown = true;
+    } else if (gateMsgShown) {
+      btn.disabled = false;
+      resultEl.className = "hint";
+      resultEl.textContent = "";
+      gateMsgShown = false;
+    }
+  }
+
   $("publishBtn").onclick = function () {
     var a = assembleCurrent();
     publishBytes = a.bytes; publishEntry = null;
-    $("publishMeta").textContent = "computing checksum…";
+    $("publishMeta").textContent = t("publish_computing");
     $("submitResult").textContent = ""; $("submitResult").className = "hint";
-    $("submitBtn").disabled = false; $("submitBtn").textContent = "Publish to Catalog";
+    $("submitBtn").disabled = false; $("submitBtn").textContent = t("submit_default");
+    gateMsgShown = false;
     openModal(publishBackdrop);
+    refreshPublishGate();
     C.sha256Hex(a.bytes).then(function (hex) {
       var entry = C.buildCatalogEntry({ name: state.name, author: state.author, bpm: state.bpm }, a.bytes, hex);
       publishEntry = entry;
       var mb = (a.bytes.length / 1024 / 1024).toFixed(2);
       var over = a.bytes.length > C.MAX_KIT_BYTES;
       var meta = $("publishMeta");
-      meta.textContent = mb + " MB · sha256 " + hex.slice(0, 12) + "…" +
-        (over ? " · over the " + (C.MAX_KIT_BYTES / 1024 / 1024) + " MB catalog limit — trim some samples" : "");
+      meta.textContent = t("publish_meta", { mb: mb, hash: hex.slice(0, 12) }) +
+        (over ? t("publish_over_limit", { limit: C.MAX_KIT_BYTES / 1024 / 1024 }) : "");
       meta.className = "hint" + (over ? " publish-warn" : "");
       $("publishDownload").onclick = function () { downloadBytes(publishBytes, entry.id + C.GPAD_EXT); };
     });
   };
   $("submitBtn").onclick = function () {
     if (!publishBytes || !publishEntry) return;
+    if (publishBlockReason()) { refreshPublishGate(); return; }
     var btn = this, resultEl = $("submitResult");
-    btn.disabled = true; btn.textContent = "Publishing…";
+    btn.disabled = true; btn.textContent = t("submit_publishing");
     resultEl.className = "hint"; resultEl.textContent = "";
     var fd = new FormData();
     fd.append("file", new Blob([publishBytes], { type: "application/octet-stream" }), publishEntry.id + C.GPAD_EXT);
@@ -1069,29 +2033,27 @@
       if (!r.ok || !r.data.ok) throw new Error((r.data && r.data.error) || "submit failed");
       resultEl.className = "hint";
       if (r.data.published) {
-        btn.textContent = "Published ✓";
-        resultEl.textContent = "It's live — already in the shared Catalog.";
-        toast("published to the catalog");
+        btn.textContent = t("submit_published");
+        resultEl.textContent = t("result_published");
+        toast(t("toast_published"));
       } else {
-        btn.textContent = "Queued ✓";
-        resultEl.textContent = "You've hit the submission limit for the moment, so this one's queued for a quick "
-          + "manual check instead of publishing instantly. You can keep using it locally while you wait — "
-          + "it's still on your device as the .gp file above — it'll show up in the Catalog once reviewed.";
-        toast("queued for review");
+        btn.textContent = t("submit_queued");
+        resultEl.textContent = t("result_queued");
+        toast(t("toast_queued"));
       }
     }).catch(function (err) {
-      btn.disabled = false; btn.textContent = "Publish to Catalog";
+      btn.disabled = false; btn.textContent = t("submit_default");
       resultEl.className = "hint publish-warn";
-      resultEl.textContent = "Couldn't publish: " + err.message + " — you can still use \"Download .gp\" above and share the file another way.";
+      resultEl.textContent = t("result_error", { msg: err.message });
     });
   };
 
   // ---- guide: 4-шаговый онбординг, авто-открытие один раз (localStorage) ----
   var GUIDE_BANKS = [
-    { cls: "bank-a", id: "A", role: "Core rhythm", on: [0,1,2,3,4,5,6,7,12] },
-    { cls: "bank-b", id: "B", role: "Bass & 808s", on: [0,1,2,3] },
-    { cls: "bank-c", id: "C", role: "Melodic chops", on: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15] },
-    { cls: "bank-d", id: "D", role: "FX & vocals", on: [0,1,2,3,4,5,6,7,8,12,13,14,15] },
+    { cls: "bank-a", id: "A", roleKey: "bank_a_role", on: [0,1,2,3,4,5,6,7,12] },
+    { cls: "bank-b", id: "B", roleKey: "bank_b_role", on: [0,1,2,3] },
+    { cls: "bank-c", id: "C", roleKey: "bank_c_role", on: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15] },
+    { cls: "bank-d", id: "D", roleKey: "bank_d_role", on: [0,1,2,3,4,5,6,7,8,12,13,14,15] },
   ];
   (function renderGuideBanks() {
     var el = $("guideBanks"); if (!el) return;
@@ -1099,7 +2061,7 @@
       var cells = "";
       for (var i = 0; i < 16; i++) cells += '<span class="' + (b.on.indexOf(i) >= 0 ? "on" : "") + '"></span>';
       return '<div class="bank-mock ' + b.cls + '"><header><span class="id">' + b.id + '</span>' +
-        '<span class="role">' + b.role + '</span></header><div class="grid16">' + cells + "</div></div>";
+        '<span class="role">' + escapeHtml(t(b.roleKey)) + '</span></header><div class="grid16">' + cells + "</div></div>";
     }).join("");
   })();
 
@@ -1186,6 +2148,7 @@
   // самый надёжный сигнал: реальный размер слота сетки после раскладки
   if (window.ResizeObserver) new ResizeObserver(function () { fitGrid(); }).observe(gridWrapEl);
   renderAll();
+  refreshPublishGate();
   requestAnimationFrame(function () { requestAnimationFrame(fitGrid); });
   setTimeout(fitGrid, 150);
 
@@ -1268,7 +2231,20 @@
       window.fetch = savedFetch;
       URL.revokeObjectURL(catalogBlobUrl); URL.revokeObjectURL(kitBlobUrl);
 
-      state.name = "Builder Test"; $("kitName").value = state.name; renderAll();
+      // публикация заперта, пока нет названия и автора, и отпирается, когда есть
+      state.name = ""; state.author = "";
+      t("publish blocked without name and author", !!publishBlockReason());
+      state.name = "Builder Test"; state.author = "";
+      t("publish blocked without author", !!publishBlockReason());
+      state.name = ""; state.author = "ci";
+      t("publish blocked without name", !!publishBlockReason());
+      state.name = "Builder Test"; state.author = "ci";
+      t("publish allowed with both", !publishBlockReason());
+      var savedBanks = state.banks;
+      state.banks = [newBank(), newBank(), newBank(), newBank()];
+      t("publish blocked with no sounds at all", !!publishBlockReason());
+      state.banks = savedBanks;
+      $("kitName").value = state.name; $("kitAuthor").value = state.author; renderAll(); refreshPublishGate();
     } catch (e) { t("no exception", false, e && e.message); }
 
     var box = document.createElement("div");

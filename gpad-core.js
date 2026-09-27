@@ -327,8 +327,16 @@ var GpadCore = (function () {
   var MAX_ENTRIES = 256;
   var MAX_UNPACKED = 100 * 1024 * 1024;
 
+  /*
+   * Кроме ошибок отдаёт `sounding` — сколько пэдов ссылается на настоящий
+   * сэмпл, а не на общую тишину SILENT_SAMPLE. Это не ошибка структуры
+   * (пустые пэды формат разрешает, и уже опубликованные киты не должны
+   * начать падать в CI), но публикация по этому числу и запрещает совсем
+   * пустой кит — см. воркер /submit и publishBlockReason в билдере.
+   */
   async function validateGpadStructure(bytes, inflateRaw) {
     var errors = [];
+    var sounding = 0;
     var files;
     try {
       files = await zipRead(bytes, inflateRaw);
@@ -344,12 +352,12 @@ var GpadCore = (function () {
     }
     if (total > MAX_UNPACKED) errors.push('unpacked too large: ' + total);
 
-    if (!files['kit.json']) return { ok: false, errors: errors.concat(['no kit.json']) };
+    if (!files['kit.json']) return { ok: false, errors: errors.concat(['no kit.json']), sounding: 0 };
     var o;
     try {
       o = JSON.parse(new TextDecoder().decode(files['kit.json']));
     } catch (e) {
-      return { ok: false, errors: errors.concat(['bad kit.json: ' + e.message]) };
+      return { ok: false, errors: errors.concat(['bad kit.json: ' + e.message]), sounding: 0 };
     }
 
     if (o.format !== 1 && o.format !== 2) errors.push('unsupported format ' + o.format);
@@ -381,11 +389,13 @@ var GpadCore = (function () {
         }
         if (!decodeWav(files[p.sample])) {
           errors.push('bank ' + id + ': ' + p.sample + ' is not 16-bit PCM WAV');
+          return;
         }
+        if (p.sample !== SILENT_SAMPLE) sounding++;
       });
     });
 
-    return { ok: errors.length === 0, errors: errors };
+    return { ok: errors.length === 0, errors: errors, sounding: sounding };
   }
 
   // --- каталог: sha256 и запись для catalog.json ------------------
