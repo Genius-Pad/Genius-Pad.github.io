@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-27T12:24:31.961Z",
+  "updatedAt": "2026-09-27T12:27:15.957Z",
   "kits": [
     {
       "id": "demo-drums-158f88",
@@ -64,7 +64,7 @@
     {
       "id": "untitled-kit-266dae",
       "name": "Untitled Kit",
-      "author": "",
+      "author": "genius-pad",
       "bpm": 90,
       "file": "kits/untitled-kit-266dae.gp",
       "sizeBytes": 977494,
