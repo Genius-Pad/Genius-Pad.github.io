@@ -73,8 +73,16 @@
   }
   .lcd input::placeholder { color: var(--lcd-dim); }
   .lcd input:focus { outline: none; border-color: var(--lcd); }
-  /* Название и автор обязательны для публикации (см. refreshPublishGate). */
+  /* Название и автор обязательны для публикации (см. refreshPublishGate).
+     Кнопка не `disabled`, а `.blocked`: disabled не отдаёт клик вообще, а
+     клик здесь нужен — им мы и объясняем, чего не хватает. */
   .lcd input.field-missing { border-color: var(--bad); }
+  button.blocked { opacity: .4; cursor: not-allowed; transform: none; }
+  .lcd input.field-flash { animation: fieldFlash .9s ease-out 2; }
+  @keyframes fieldFlash {
+    0%, 100% { border-color: var(--bad); box-shadow: none; }
+    35% { border-color: var(--bad); box-shadow: 0 0 0 2px rgba(255,90,90,.35); }
+  }
   #kitName { flex: 3 1 0; }
   #kitAuthor { flex: 2 1 0; }
   .bpmwrap { flex: 0 0 68px; position: relative; }
@@ -1375,8 +1383,9 @@
     $("loadBtn").textContent = t("btn_load");
     $("publishBtn").textContent = t("btn_publish");
     $("exportBtn").textContent = t("btn_export");
-    $("kitName").placeholder = t("kit_name_ph"); $("kitName").setAttribute("aria-label", t("kit_name_ph"));
-    $("kitAuthor").placeholder = t("kit_author_ph"); $("kitAuthor").setAttribute("aria-label", t("kit_author_ph"));
+    // " *" — маркер обязательного поля; в aria-label не идёт, там читается имя поля
+    $("kitName").placeholder = t("kit_name_ph") + " *"; $("kitName").setAttribute("aria-label", t("kit_name_ph"));
+    $("kitAuthor").placeholder = t("kit_author_ph") + " *"; $("kitAuthor").setAttribute("aria-label", t("kit_author_ph"));
     statusEl.textContent = t("status_default");
     $("edNum").textContent = t("ed_default_title");
     $("catalogTitle").textContent = t("catalog_title");
@@ -1979,10 +1988,18 @@
   }
   var gateMsgShown = false;   // сообщение поставил гейт, а не ответ сервера
   function refreshPublishGate() {
-    $("kitName").classList.toggle("field-missing", !state.name.trim());
-    $("kitAuthor").classList.toggle("field-missing", !state.author.trim());
+    var why = publishBlockReason();
+    [["kitName", state.name], ["kitAuthor", state.author]].forEach(function (pair) {
+      var el = $(pair[0]), missing = !pair[1].trim();
+      el.classList.toggle("field-missing", missing);
+      if (!missing) el.classList.remove("field-flash");
+    });
+    var pub = $("publishBtn");
+    pub.classList.toggle("blocked", !!why);
+    pub.setAttribute("aria-disabled", why ? "true" : "false");
+    if (why) pub.title = why; else pub.removeAttribute("title");
     if (!$("publishBackdrop").classList.contains("open")) return;
-    var btn = $("submitBtn"), resultEl = $("submitResult"), why = publishBlockReason();
+    var btn = $("submitBtn"), resultEl = $("submitResult");
     if (why) {
       btn.disabled = true;
       resultEl.className = "hint publish-warn";
@@ -1997,6 +2014,22 @@
   }
 
   $("publishBtn").onclick = function () {
+    var why = publishBlockReason();
+    if (why) {
+      // Диалог не открываем вообще: незачем показывать Publish to Catalog,
+      // который всё равно не нажмётся. Вместо этого — тост и фокус на первом
+      // незаполненном поле, чтобы было видно, что именно чинить.
+      toast(why, true);
+      var first = !state.name.trim() ? $("kitName") : (!state.author.trim() ? $("kitAuthor") : null);
+      [$("kitName"), $("kitAuthor")].forEach(function (el) {
+        if (!el.classList.contains("field-missing")) return;
+        el.classList.remove("field-flash");
+        void el.offsetWidth;            // перезапустить анимацию
+        el.classList.add("field-flash");
+      });
+      if (first) first.focus();
+      return;
+    }
     var a = assembleCurrent();
     publishBytes = a.bytes; publishEntry = null;
     $("publishMeta").textContent = t("publish_computing");
@@ -2131,7 +2164,7 @@
     for (var i = 0; i < 16; i++) refreshPad(i);
   }
   function renderAll() {
-    renderBanks(); renderGrid(); renderEditor();
+    renderBanks(); renderGrid(); renderEditor(); refreshPublishGate();
     requestAnimationFrame(fitGrid);
   }
   var rt = 0;
@@ -2147,8 +2180,7 @@
   if (wideMq.addEventListener) wideMq.addEventListener("change", fitGrid);
   // самый надёжный сигнал: реальный размер слота сетки после раскладки
   if (window.ResizeObserver) new ResizeObserver(function () { fitGrid(); }).observe(gridWrapEl);
-  renderAll();
-  refreshPublishGate();
+  renderAll();          // renderAll сам дёргает refreshPublishGate
   requestAnimationFrame(function () { requestAnimationFrame(fitGrid); });
   setTimeout(fitGrid, 150);
 
