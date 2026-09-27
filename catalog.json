@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-27T12:27:15.957Z",
+  "updatedAt": "2026-09-27T21:02:01.417Z",
   "kits": [
     {
       "id": "demo-drums-158f88",
@@ -70,6 +70,16 @@
       "sizeBytes": 977494,
       "sha256": "266daecf6976e5fbe5238049d3709bf7a349d83d5c6fff3d6923d468cf975d49",
       "addedAt": "2026-09-27T09:47:18.463Z"
+    },
+    {
+      "id": "dinu-8bb2cc",
+      "name": "Dinu",
+      "author": "Acc",
+      "bpm": 90,
+      "file": "kits/dinu-8bb2cc.gp",
+      "sizeBytes": 1803549,
+      "sha256": "8bb2cc97713531de9186a2772bafebee01a4bfab6afdbada8020192a94ee2394",
+      "addedAt": "2026-09-27T21:01:58.331Z"
     }
   ],
   "version": 1
